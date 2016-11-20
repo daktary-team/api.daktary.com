@@ -10,6 +10,8 @@ fi
 
 rev=$(git rev-parse --short HEAD)
 
+rm -Rf stage/_book
+mkdir -p stage/_book
 cd stage/_book
 
 git init
