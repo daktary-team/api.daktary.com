@@ -1,17 +1,29 @@
 #!/bin/bash
-rm -rf out || exit 0;
-mkdir out; 
-node build.js
-( cd out
- git init
- git config user.name "Travis-CI"
- git config user.email "travis@nodemeatspace.com"
- cp ../CNAME ./CNAME
- cp ../countryiso.js ./countryiso.js
- git add .
- git commit -m "Deployed to Github Pages"
- echo "---"
- echo "${GH_TOKEN}@${GH_REF}"
- echo "---"
- git push --force --quiet "https://${GH_TOKEN}@${GH_REF}" master:gh-pages > /dev/null 2>&1
-)
+
+set -o errexit -o nounset
+
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
+
+rev=$(git rev-parse --short HEAD)
+
+cd stage/_book
+
+git init
+git config user.name "Stéphane Langlois"
+git config user.email "stephane@scopyleft.fr"
+
+git remote add upstream "https://$GH_TOKEN@github.com:$GITHUB_REPO"
+git fetch upstream
+git reset upstream/gh-pages
+
+echo "api.daktary.com" > CNAME
+
+touch .
+
+git add -A .
+git commit -m "rebuild pages at ${rev}"
+git push -q upstream HEAD:gh-pages
