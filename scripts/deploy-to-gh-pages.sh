@@ -10,8 +10,8 @@ fi
 
 rev=$(git rev-parse --short HEAD)
 
-mkdir -p gh-pages
-cd gh-pages
+mkdir -p deploy/gh-pages
+cd deploy/gh-pages
 
 git init
 git config user.name "Stéphane Langlois"
@@ -22,7 +22,7 @@ git fetch upstream
 git reset upstream/gh-pages
 
 echo "api.daktary.com" > CNAME
-
+ls -l
 touch .
 
 git add -A .
