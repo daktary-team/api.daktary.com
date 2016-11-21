@@ -5,6 +5,13 @@ rev=$(git rev-parse --short HEAD)
 
 mkdir -p deploy/gh-pages
 cd deploy/gh-pages
+cp ../licence.md .
+
+echo "---"
+ls
+echo "---"
+ls ..
+echo "---"
 
 git init
 git config user.name "Stéphane Langlois"
@@ -14,7 +21,12 @@ git remote add upstream "https://$GITHUB_TOKEN@github.com/daktary-team/api.dakta
 git fetch upstream
 git reset upstream/gh-pages
 
-cp ../licence.md .
+echo "---"
+ls
+echo "---"
+ls ..
+echo "---"
+
 echo "api.daktary.com" > CNAME
 ls -l
 touch .
