@@ -1,3 +1,7 @@
 language: node_js
 node_js:
-  - "node"
+  - "node_js"
+script:
+  - npm test
+after_success:
+  - bash ./scripts/deploy-to-gh-pages.sh
