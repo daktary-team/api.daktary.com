@@ -1,5 +1,5 @@
-var assert = require('assert');
-var calculator = require('../index');
+const assert = require('assert')
+const calculator = require('../index')
 
 describe('calculator', () =>
     describe('add function', () =>
