@@ -5,7 +5,6 @@ rev=$(git rev-parse --short HEAD)
 
 mkdir -p deploy/gh-pages
 cd deploy/gh-pages
-cp ../licence.md .
 
 echo "---"
 ls
