@@ -1,4 +1,9 @@
 #!/bin/bash
+
+mkdir out
+cd out
+cp ../*.md .
+
 set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
