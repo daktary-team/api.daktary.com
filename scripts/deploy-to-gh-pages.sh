@@ -1,10 +1,14 @@
 #!/bin/bash
 
+set -o errexit -o nounset
+
 mkdir out
 cd out
 cp ../*.md .
-
-set -o errexit -o nounset
+echo "---"
+pwd
+ls
+echo "---"
 
 rev=$(git rev-parse --short HEAD)
 
