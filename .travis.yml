@@ -3,7 +3,7 @@ node_js:
   - "node"
 script:
   - npm test
-  - npm deploy
+  - npm run deploy
 after_success:
   - bash ./scripts/deploy-to-gh-pages.sh
 env:
