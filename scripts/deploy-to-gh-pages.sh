@@ -1,14 +1,15 @@
 #!/bin/bash
-
 set -o errexit -o nounset
+
+if [ "$TRAVIS_BRANCH" != "master" ]
+then
+  echo "This commit was made against the $TRAVIS_BRANCH and not the master! No deploy!"
+  exit 0
+fi
 
 mkdir out
 cd out
 cp ../*.md .
-echo "---"
-pwd
-ls
-echo "---"
 
 rev=$(git rev-parse --short HEAD)
 
