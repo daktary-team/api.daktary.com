@@ -1,5 +1,5 @@
 #!/bin/bash
-
+pwd
 set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
@@ -7,8 +7,6 @@ rev=$(git rev-parse --short HEAD)
 mkdir -p deploy/gh-pages
 mkdir -p deploy/master
 cd deploy/master
-
-npm test
 
 git init
 git config user.name "Stéphane Langlois"
