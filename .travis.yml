@@ -3,7 +3,7 @@ node_js:
   - node
 before_install:
   npm install -g mocha
-after_install:
+after_success:
   npm run deploy
 env:
   global:
