@@ -4,8 +4,7 @@
   "description": "High level Github API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "deploy:" "./scripts/build.sh"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",

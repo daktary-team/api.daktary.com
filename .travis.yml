@@ -1,7 +1,9 @@
 language: node_js
 node_js:
-  - node
+  - "node"
 script:
+  - npm test
+after_success:
   - bash ./scripts/deploy-to-gh-pages.sh
 env:
   global:
