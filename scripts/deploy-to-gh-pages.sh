@@ -1,4 +1,8 @@
 #!/bin/bash
+echo "--------"
+pwd
+ls
+echo "--------"
 
 set -o errexit -o nounset
 
