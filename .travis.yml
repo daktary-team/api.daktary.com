@@ -1,10 +1,8 @@
 language: node_js
 node_js:
   - node
-before_install:
-  npm install -g mocha
-after_success:
-  npm run deploy
+script:
+  - bash ./scripts/deploy-to-gh-pages.sh
 env:
   global:
     - GITHUB_REPO: daktary-team/api.daktary.com
