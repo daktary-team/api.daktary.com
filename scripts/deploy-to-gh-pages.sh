@@ -17,4 +17,9 @@ git init
 git config user.name "Stéphane Langlois"
 git config user.email "stephane@scopyleft.fr"
 
+git remote add upstream "https://$GH_TOKEN@github.com:$GITHUB_REPO"
+git fetch upstream
+git reset upstream/gh-pages
 
+echo "api.daktary.com" > CNAME
+ls
