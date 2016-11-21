@@ -3,9 +3,7 @@ set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
 
-mkdir -p deploy/gh-pages
-cd deploy/gh-pages
-
+cd test
 echo "---"
 ls
 echo "---"
