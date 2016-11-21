@@ -3,8 +3,6 @@ set -o errexit -o nounset
 
 rev=$(git rev-parse --short HEAD)
 
-cd out
-
 git init
 git config user.name "Stéphane Langlois"
 git config user.email "stephane@scopyleft.fr"
