@@ -3,6 +3,7 @@ node_js:
   - node
 script:
   - npm run lint
+  - npm test
 deploy:
   provider: heroku
   api_key:
