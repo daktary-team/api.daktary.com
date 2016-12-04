@@ -1,13 +1,11 @@
 language: node_js
 node_js:
-  - "node"
+  - node
 script:
   - npm run lint
-  - npm test
-after_success:
-  - npm run deploy
-  - bash ./scripts/deploy.sh
-env:
-  global:
-    - GITHUB_REPO: daktary-team/api.daktary.com
-    - secure: J78AFvz1V/zj+pz2Nf8lTy+6GUVeKzHflRuPAXX5VocFh2mXYIYC6FfnJRHMUNNmCYFWyPPLSXHlAPyVKvvRnhgzHn0CAG4S7eksxgbbIHYYWpJWni682jF0mI1gH8UdbBwmP7sXl0Zl1jyUV7dLr65pLepF7qH8QBMkmCHh+o43I3DBJqHnVgnDOZ/bGfUDNSGXfpu6PsenP3eqfLkunDiUNrflP/mrZ+U1ufQ72AAy1X7B6DrORqiZM122+v0z8u2ZSm2EJ/fUGlXpBQbeXRCN9eu4LTT+BJWP+WsKXXuA9itt2rYsZ5IY9R4ETYeqmRRsZDzxdBhOcZ5Z9kfGWLBbF/Hyqvr2Gm9690/oKfiNSFCVeZ76o2PlvbyADl0ZF13WlV9o8Ifok0+mmiPDzTRq3SsOFAKLwu8V21wS7mJn4phJ/sLWtnY6YCjhOuMzK2xppBTARnCIzBUFGOdWnkFS4ns1bz4J3lLeyYVOO2/k0CbVCb2y3boEzkLYlD7gxbViU6zjzoci/YCiwBNBg6fDskaA2XvyIfpI8Fru3w+l+MoJ+AIrUixo692DuaGxbqRSYBYpivzL4lrHr6/P8LuP4SQXiXoMu4eP3adhnj8kWiFe0EPB56omYQsqC8Q8/lf99lDhfgin2bPo+HqxK1Z5RaJ+5IgpYqfWA9tAdC8=
+deploy:
+  provider: heroku
+  api_key:
+    secure: BrePPL7Gx/Vf9P9UZwZcub5Bo3n7D0FhiE+2YOeV5DCTL27nvT/2oesKz8nAho60YcLAHaGLOsLpILlLchDNefNFt83elQv85vcSaaaAIi4/u+YODdDiqzmxH3GPoGVz0lxQ52Sd83F1C3O+Ails1tNwSw9YW3Fp5YJ4wIhIgTwvEStzdi9GCUZm5vp8QTFuDkl6J2mcMYj7r3p4r8m3kcBBlC55jhYopJE7Jb0BwYeHYXlN+nMcu2/gWZF2Acf41S3qoKkOezUi/ZYxQAuk9woAFzwGqELE59g9neao+NS5/h04bLZw5qmzam/JNvHVGrA6rFVJGbT1WgI05j/injFsOVElv1sYd82sBpiAZJzY3xkIl2QbLWs9UR8d7KCR9BMyIhrXqwCgp1yMCa/qg6kAaOvouvUyjl54fVHKIlt2O8O2CQDbGwBh7EyS5ojrLlLkThb45W7Cfi0pbggHWRETTa91Af2PhCkC3iKPNimUnEjBpblstkY4cCFnc4qkanSMl4zIPyNUtWMVQ1qu4ZOGORWlehjPc2pseVPdFEmnp1lz6dp8UcdSmPthi997ATRAGxcGYfDzUc7E0dJK4v+hMBqFRY6WAFoc3bm/umrj0ZtG9Un7vns0+QIoneqIaVgYLR1PWgJsvrs77WY4xf7KUolzvV0zJtdkL9RyP8M=
+  on:
+    branch: master
