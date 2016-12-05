@@ -1,13 +1,12 @@
 {
   "name": "api.daktary.com",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "High level Github API",
-  "main": "api.js",
+  "main": "routes.js",
   "scripts": {
     "lint": "./node_modules/.bin/eslint .",
     "test": "./node_modules/.bin/mocha",
-    "deploy": "./scripts/build.sh",
-    "start": "node api.js"
+    "start": "node routes.js"
   },
   "repository": {
     "type": "git",
