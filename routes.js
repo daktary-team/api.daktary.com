@@ -7,7 +7,7 @@ const port = process.env.PORT || 8001
 
 app.get('/', (req, res) => {
     const routes = {
-        repos_url: 'https://api.github.com/{user}'
+        repos_url: 'https://api.github.com/{owner}'
     }
     res.header('Access-Control-Allow-Origin', '*')
 
