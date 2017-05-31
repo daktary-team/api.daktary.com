@@ -9,6 +9,7 @@ const config = require('./config')
  */
 const apiUrl = {}
 apiUrl.root = 'https://api.github.com'
+
 /**
  * Create query for api url
  * @param {Object} config   config data.
@@ -16,16 +17,19 @@ apiUrl.root = 'https://api.github.com'
  */
 apiUrl.query = (cfg) =>
     '?ref=master' + apiUrl.addAuth(this.query, cfg)
+
 /**
  * Create query complement to Github authorization
  * @param {Object} config   config data {ghId, ghSecret}.
  * @return {String} query   query string with &client_id&client_secret.
  */
-apiUrl.addAuth = (query, {ghId, ghSecret}) =>
-    (typeof ghId !== 'undefined' && typeof ghSecret !== 'undefined')
-    ? `&client_id=${ghId}&client_secret=${ghSecret}`
-    : ''
-
+apiUrl.addAuth = (query, { ghId, ghSecret }) => {
+    if (typeof ghId !== 'undefined' && typeof ghSecret !== 'undefined') {
+        return `&client_id=${ghId}&client_secret=${ghSecret}`
+    } else {
+        return ''
+    }
+}
 
 app.get('/', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -38,8 +42,7 @@ app.get('/', (req, res) => {
 app.get('/:owner/:repo', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const routes = {
-        git_url:
-            `${apiUrl.root}/repos/` +
+        git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
             `${req.params.repo}` +
             apiUrl.query(config)
