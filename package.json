@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/daktary-team/api.daktary.com#readme",
   "devDependencies": {
+    "chai": "^4.0.0",
     "eslint": "^3.10.2",
     "mocha": "^3.1.2"
   },
