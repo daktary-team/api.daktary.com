@@ -1,8 +1,7 @@
 const express = require('express')
 const app = express()
 const https = require('https')
-const config = require('./config')
-
+const CONFIG = require('./config')
 
 /*
  * Configure the parameters for the api Github Url
@@ -10,42 +9,113 @@ const config = require('./config')
 const apiUrl = {}
 apiUrl.root = 'https://api.github.com'
 
+
 /**
  * Create query for api url
- * @param {Object} config   config data.
+ * @param {String} branch   branch's name.
  * @return {String} query   query string with ref=branch&client_id&client_secret.
  */
-apiUrl.query = (cfg) =>
-    '?ref=master' + apiUrl.addAuth(this.query, cfg)
+apiUrl.query = branch => {
+    return `?ref=${branch}${apiUrl.addAuth()}`
+}
+
 
 /**
  * Create query complement to Github authorization
- * @param {Object} config   config data {ghId, ghSecret}.
  * @return {String} query   query string with &client_id&client_secret.
  */
-apiUrl.addAuth = (query, { ghId, ghSecret }) => {
-    if (typeof ghId !== 'undefined' && typeof ghSecret !== 'undefined') {
+apiUrl.addAuth = () => {
+    const { ghId, ghSecret } = CONFIG
+    if (ghId && ghSecret) {
         return `&client_id=${ghId}&client_secret=${ghSecret}`
     } else {
         return ''
     }
 }
 
+
+/**
+ * Display api's options for the root route
+ */
 app.get('/', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const routes = {
-        repos_url: `${apiUrl.root}/{owner}`
+        repos_url: `${apiUrl.root}/{owner}`,
+        repo_url: `${apiUrl.root}/{owner}/}repo:`,
+        folder_url: `${apiUrl.root}/{owner}/{repo}/tree/{branch}/{path}`,
+        file_url: `${apiUrl.root}/{owner}/{repo}/blob/{branch}/{path}`
     }
     res.send(routes)
 })
 
+
+/** 
+ * Return Github content for a repositories
+ * Convert: https://api.daktary.com/:owner:/
+ * to github api: https://api.github.com/repos/:owner:
+ */
+app.get('/:owner', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const routes = {
+        git_url: `${apiUrl.root}/users/` +
+            `${req.params.owner}/` +
+            `repos` +
+            apiUrl.query('master')
+    }
+    res.send(routes)
+})
+
+
+/** 
+ * Return Github content for a repository
+ * Convert: https://api.daktary.com/:owner:/:repo:
+ * to github api: https://api.github.com/repos/:owner:/:repo:
+ */
 app.get('/:owner/:repo', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const routes = {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
             `${req.params.repo}` +
-            apiUrl.query(config)
+            apiUrl.query('master')
+    }
+    res.send(routes)
+})
+
+
+/** 
+ * Return Github content for a folder
+ * Convert:  https://api.daktary.com/:owner:/:repo:/tree/:branch:/:path:
+ * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
+ */
+app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const routes = {
+        git_url: `${apiUrl.root}/repos/` +
+            `${req.params.owner}/` +
+            `${req.params.repo}/` +
+            `contents/` +
+            `${req.params.path}` +
+            apiUrl.query(req.params.branch)
+    }
+    res.send(routes)
+})
+
+
+/** 
+ * Return Github content for a file
+ * Convert: https://api.daktary.com/:owner:/:repo:/blob/:branch:/:path:
+ * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
+ */
+app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const routes = {
+        git_url: `${apiUrl.root}/repos/` +
+            `${req.params.owner}/` +
+            `${req.params.repo}/` +
+            `contents/` +
+            `${req.params.path}` +
+            apiUrl.query(req.params.branch)
     }
     res.send(routes)
 })
