@@ -3,6 +3,7 @@ const app = express()
 const https = require('https')
 const CONFIG = require('./config')
 
+
 /*
  * Configure the parameters for the api Github Url
  */
@@ -15,17 +16,18 @@ apiUrl.root = 'https://api.github.com'
  * @param {String} branch   branch's name.
  * @return {String} query   query string with ref=branch&client_id&client_secret.
  */
-apiUrl.query = branch => {
-    return `?ref=${branch}${apiUrl.addAuth()}`
+apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
+    return `?ref=${branch}${apiUrl.addAuth(ghId, ghSecret)}`
 }
 
 
 /**
- * Create query complement to Github authorization
+ * Add token to query to increase github rate limit
+ * @param {String} ghId   Github user id.
+ * @param {String} ghSecret   Github secret token.
  * @return {String} query   query string with &client_id&client_secret.
  */
-apiUrl.addAuth = () => {
-    const { ghId, ghSecret } = CONFIG
+apiUrl.addAuth = (ghId, ghSecret) => {
     if (ghId && ghSecret) {
         return `&client_id=${ghId}&client_secret=${ghSecret}`
     } else {
@@ -60,7 +62,7 @@ app.get('/:owner', (req, res) => {
         git_url: `${apiUrl.root}/users/` +
             `${req.params.owner}/` +
             `repos` +
-            apiUrl.query('master')
+            apiUrl.query()
     }
     res.send(routes)
 })
@@ -77,7 +79,7 @@ app.get('/:owner/:repo', (req, res) => {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
             `${req.params.repo}` +
-            apiUrl.query('master')
+            apiUrl.query()
     }
     res.send(routes)
 })
@@ -120,4 +122,8 @@ app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
     res.send(routes)
 })
 
+
 app.listen(process.env.PORT)
+
+
+module.exports = apiUrl
