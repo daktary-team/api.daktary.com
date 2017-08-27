@@ -29,3 +29,5 @@ heroku local web
 ```
 
 Then [http://localhost:5000](http://localhost:5000)
+
+[cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
