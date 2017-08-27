@@ -30,9 +30,8 @@ apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
 apiUrl.addAuth = (ghId, ghSecret) => {
     if (ghId && ghSecret) {
         return `&client_id=${ghId}&client_secret=${ghSecret}`
-    } else {
-        return ''
     }
+    return ''
 }
 
 
@@ -51,7 +50,7 @@ app.get('/', (req, res) => {
 })
 
 
-/** 
+/**
  * Return Github content for a repositories
  * Convert: https://api.daktary.com/:owner:/
  * to github api: https://api.github.com/repos/:owner:
@@ -61,14 +60,14 @@ app.get('/:owner', (req, res) => {
     const routes = {
         git_url: `${apiUrl.root}/users/` +
             `${req.params.owner}/` +
-            `repos` +
+            'repos' +
             apiUrl.query()
     }
     res.send(routes)
 })
 
 
-/** 
+/**
  * Return Github content for a repository
  * Convert: https://api.daktary.com/:owner:/:repo:
  * to github api: https://api.github.com/repos/:owner:/:repo:
@@ -85,7 +84,7 @@ app.get('/:owner/:repo', (req, res) => {
 })
 
 
-/** 
+/**
  * Return Github content for a folder
  * Convert:  https://api.daktary.com/:owner:/:repo:/tree/:branch:/:path:
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
@@ -96,7 +95,7 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
             `${req.params.repo}/` +
-            `contents/` +
+            'contents/' +
             `${req.params.path}` +
             apiUrl.query(req.params.branch)
     }
@@ -104,7 +103,7 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
 })
 
 
-/** 
+/**
  * Return Github content for a file
  * Convert: https://api.daktary.com/:owner:/:repo:/blob/:branch:/:path:
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
@@ -115,7 +114,7 @@ app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
             `${req.params.repo}/` +
-            `contents/` +
+            'contents/' +
             `${req.params.path}` +
             apiUrl.query(req.params.branch)
     }

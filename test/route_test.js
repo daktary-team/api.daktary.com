@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 const chai = require('chai')
 const routes = require('../routes')
 
