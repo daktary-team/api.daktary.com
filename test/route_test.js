@@ -10,6 +10,26 @@ describe('API -', () => {
         ghId: '964172a90e5c25e97616',
         ghSecret: 'mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg=='
     }
+
+
+    describe('Create the Github Api Url for document', () => {
+        it('With right parameters it return Url', () => {
+            const localDomain = 'https://api.daktary.com'
+            const params = {
+                owner: 'Antonin',
+                repo: 'momo',
+                path: 'README.md'
+            }
+            const query = `&ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
+            expect(routes.getApiUrlDoc(localDomain, params, query)).to.be.match(/^https/)
+            expect(routes.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.owner)
+            expect(routes.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.repo)
+            expect(routes.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.path)
+            expect(routes.getApiUrlDoc(localDomain, params, query)).to.be.contain('&')
+        })
+    })
+
+
     describe('Add token to increase github rate limit', () => {
         it('Respond empty string when gh_secret or gh_id not present', () => {
             expect(routes.addAuth(CONFIG.ghId, undefined)).to.be.equal('')
