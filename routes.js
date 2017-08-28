@@ -13,7 +13,7 @@ apiUrl.root = 'https://api.github.com'
 
 /**
  * Create query for api url.
- * 
+ *
  * @param {string} branch - branch's name.
  * @return {String} query - query string with ref=branch&client_id&client_secret.
  */
@@ -24,7 +24,7 @@ apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
 
 /**
  * Add token to query to increase github rate limit
- * 
+ *
  * @param {String} ghId   Github user id.
  * @param {String} ghSecret   Github secret token.
  * @return {String} query   query string with &client_id&client_secret.
