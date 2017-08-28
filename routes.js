@@ -38,6 +38,23 @@ apiUrl.addAuth = (ghId, ghSecret) => {
 
 
 /**
+ * Create the url to extract document from Github
+ *
+ * @param {String} localDomain - The base Url to exchange with Github API.
+ * @param {Object} params - Github params - {owner, repo, path}
+ * @param {String} query - Github params for queries Url.
+ * @return {String} github-url - The API Github Url.
+ */
+apiUrl.getApiUrlDoc = (localDomain, params, query) =>
+    `${localDomain}/repos/` +
+    `${params.owner}/` +
+    `${params.repo}/` +
+    'contents/' +
+    `${params.path}` +
+    query
+
+
+/**
  * Display api's options for the root route
  */
 app.get('/', (req, res) => {
@@ -112,13 +129,11 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
  */
 app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
+    const gitUrl = apiUrl.getApiUrlDoc(
+        apiUrl.root, req.params, apiUrl.query(req.params.branch)
+    )
     const routes = {
-        git_url: `${apiUrl.root}/repos/` +
-            `${req.params.owner}/` +
-            `${req.params.repo}/` +
-            'contents/' +
-            `${req.params.path}` +
-            apiUrl.query(req.params.branch)
+        git_url: gitUrl
     }
     res.send(routes)
 })
