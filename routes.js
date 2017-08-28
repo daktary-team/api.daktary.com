@@ -4,17 +4,18 @@ const https = require('https')
 const CONFIG = require('./config')
 
 
-/*
- * Configure the parameters for the api Github Url
+/**
+ * Configure the parameters for the api Github Url.
  */
 const apiUrl = {}
 apiUrl.root = 'https://api.github.com'
 
 
 /**
- * Create query for api url
- * @param {String} branch   branch's name.
- * @return {String} query   query string with ref=branch&client_id&client_secret.
+ * Create query for api url.
+ *
+ * @param {string} branch - branch's name.
+ * @return {String} query - query string with ref=branch&client_id&client_secret.
  */
 apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
     return `?ref=${branch}${apiUrl.addAuth(ghId, ghSecret)}`
@@ -23,6 +24,7 @@ apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
 
 /**
  * Add token to query to increase github rate limit
+ *
  * @param {String} ghId   Github user id.
  * @param {String} ghSecret   Github secret token.
  * @return {String} query   query string with &client_id&client_secret.

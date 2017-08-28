@@ -38,5 +38,5 @@ npm test
 
 ### Spikes
 - [cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
-- Nightwatch.js
-
+- supertest
+- Restify vs express
