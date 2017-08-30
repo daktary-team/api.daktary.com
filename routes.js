@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const https = require('https')
+const request = require('request')
 const CONFIG = require('./config')
 
 
@@ -38,7 +38,7 @@ apiUrl.addAuth = (ghId, ghSecret) => {
 
 
 /**
- * Create the url to extract document from Github
+ * Create the url to extract document from Github.
  *
  * @param {String} localDomain - The base Url to exchange with Github API.
  * @param {Object} params - Github params - {owner, repo, path}
@@ -52,6 +52,24 @@ apiUrl.getApiUrlDoc = (localDomain, params, query) =>
     'contents/' +
     `${params.path}` +
     query
+
+
+/**
+ * Get an html ressource from Github
+ *
+ * @param {String} url - Github url query.
+ */
+apiUrl.getHtmlDoc = (url) => {
+    const options = {
+        url: url,
+        headers: {
+            'User-Agent': 'daktary'
+        }
+    }
+    request(options, (err, res, body) => {
+        // console.log('body', body)
+    })
+}
 
 
 /**
@@ -135,6 +153,7 @@ app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
     const routes = {
         git_url: gitUrl
     }
+    apiUrl.getHtmlDoc(routes.git_url)
     res.send(routes)
 })
 
