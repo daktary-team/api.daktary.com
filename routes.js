@@ -63,11 +63,13 @@ apiUrl.getHtmlDoc = (url) => {
     const options = {
         url: url,
         headers: {
-            'User-Agent': 'daktary'
+            'User-Agent': 'daktary',
+            'Accept': 'application/vnd.github.v3.html'
         }
     }
     request(options, (err, res, body) => {
-        // console.log('body', body)
+        const content = body
+            // console.log('body', body)
     })
 }
 
