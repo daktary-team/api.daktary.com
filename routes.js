@@ -59,7 +59,7 @@ apiUrl.getApiUrlDoc = (localDomain, params, query) =>
  *
  * @param {String} url - Github url query.
  */
-apiUrl.getHtmlDoc = (url) => {
+apiUrl.loadHtmlDoc = (url) => {
     const options = {
         url: url,
         headers: {
@@ -68,6 +68,9 @@ apiUrl.getHtmlDoc = (url) => {
         }
     }
     request(options, (err, res, body) => {
+        if (err) {
+            throw `Can't load Github document : ${err}`
+        }
         if (res.statusCode === 200) {
             // console.log('body', body)
         }
@@ -156,7 +159,7 @@ app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
     const routes = {
         git_url: gitUrl
     }
-    apiUrl.getHtmlDoc(routes.git_url)
+    apiUrl.loadHtmlDoc(routes.git_url)
     res.send(routes)
 })
 
