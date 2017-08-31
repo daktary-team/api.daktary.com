@@ -68,8 +68,9 @@ apiUrl.getHtmlDoc = (url) => {
         }
     }
     request(options, (err, res, body) => {
-        const content = body
+        if (res.statusCode === 200) {
             // console.log('body', body)
+        }
     })
 }
 
