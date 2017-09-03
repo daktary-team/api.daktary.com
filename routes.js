@@ -51,6 +51,7 @@ apiUrl.getApiUrlDoc = (localDomain, params, query) =>
     `${params.repo}/` +
     'contents/' +
     `${params.path}` +
+    `${params[0]}` +
     query
 
 
@@ -65,18 +66,27 @@ apiUrl.requestHtmlDoc = url => {
         url: url,
         headers: {
             'User-Agent': 'daktary',
-            'Accept': 'application/vnd.github.v3.html'
-        }
+            Accept: 'application/vnd.github.v3.json'
+        },
+        json: true
     }
     return request(options)
 }
 
 
 /**
+ * Add headers so we can make API requests
+ */
+app.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    next()
+})
+
+
+/**
  * Display api's options for the root route
  */
 app.get('/', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const routes = {
         repos_url: `${apiUrl.root}/{owner}`,
         repo_url: `${apiUrl.root}/{owner}/}repo:`,
@@ -93,7 +103,6 @@ app.get('/', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:
  */
 app.get('/:owner', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const routes = {
         git_url: `${apiUrl.root}/users/` +
             `${req.params.owner}/` +
@@ -110,7 +119,6 @@ app.get('/:owner', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:
  */
 app.get('/:owner/:repo', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const routes = {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
@@ -127,7 +135,6 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
     const routes = {
         git_url: `${apiUrl.root}/repos/` +
             `${req.params.owner}/` +
@@ -145,17 +152,19 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
  * Convert: https://api.daktary.com/:owner:/:repo:/blob/:branch:/:path:
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
-app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
+app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     const gitUrl = apiUrl.getApiUrlDoc(
         apiUrl.root, req.params, apiUrl.query(req.params.branch)
     )
     apiUrl.requestHtmlDoc(gitUrl)
         .then(body => {
-            res.json({ body: body })
+            res.json({
+                meta: { a: 0 },
+                body: Buffer.from(body.content, 'base64').toString('utf8')
+            })
         })
         .catch(err => {
-            throw `Can't load Github document : ${err}`
+            throw new Error(`Can't load Github document : ${err}`)
         })
 })
 
