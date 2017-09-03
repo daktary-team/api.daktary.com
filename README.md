@@ -30,13 +30,31 @@ heroku local web
 
 Then [http://localhost:5000](http://localhost:5000)
 
-### Play Unit Tests
+## Play Unit Tests
 
 ```bash
 npm test
 ```
 
-### Spikes
+## Linter
+
+```bash
+npm run lint
+```
+
+## Spikes
 - [cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
 - supertest
 - Restify vs express
+
+## API Usage
+
+### Load a Github document
+
+In your console :
+
+```JavaScript
+fetch('http://localhost:5000/daktary-team/api.daktary.com/blob/master/README.md')
+    .then(rep => rep.json())
+    .then(json => console.log(json))
+```

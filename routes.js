@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const request = require('request')
+const request = require('request-promise')
 const CONFIG = require('./config')
 
 
@@ -58,8 +58,9 @@ apiUrl.getApiUrlDoc = (localDomain, params, query) =>
  * Get an html ressource from Github
  *
  * @param {String} url - Github url query.
+ * @return {Object} request - request to load.
  */
-apiUrl.loadHtmlDoc = (url) => {
+apiUrl.requestHtmlDoc = url => {
     const options = {
         url: url,
         headers: {
@@ -67,14 +68,7 @@ apiUrl.loadHtmlDoc = (url) => {
             'Accept': 'application/vnd.github.v3.html'
         }
     }
-    request(options, (err, res, body) => {
-        if (err) {
-            throw `Can't load Github document : ${err}`
-        }
-        if (res.statusCode === 200) {
-            // console.log('body', body)
-        }
-    })
+    return request(options)
 }
 
 
@@ -89,7 +83,7 @@ app.get('/', (req, res) => {
         folder_url: `${apiUrl.root}/{owner}/{repo}/tree/{branch}/{path}`,
         file_url: `${apiUrl.root}/{owner}/{repo}/blob/{branch}/{path}`
     }
-    res.send(routes)
+    res.json(routes)
 })
 
 
@@ -106,7 +100,7 @@ app.get('/:owner', (req, res) => {
             'repos' +
             apiUrl.query()
     }
-    res.send(routes)
+    res.json(routes)
 })
 
 
@@ -123,7 +117,7 @@ app.get('/:owner/:repo', (req, res) => {
             `${req.params.repo}` +
             apiUrl.query()
     }
-    res.send(routes)
+    res.json(routes)
 })
 
 
@@ -142,7 +136,7 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
             `${req.params.path}` +
             apiUrl.query(req.params.branch)
     }
-    res.send(routes)
+    res.json(routes)
 })
 
 
@@ -156,15 +150,16 @@ app.get('/:owner/:repo/blob/:branch/:path', (req, res) => {
     const gitUrl = apiUrl.getApiUrlDoc(
         apiUrl.root, req.params, apiUrl.query(req.params.branch)
     )
-    const routes = {
-        git_url: gitUrl
-    }
-    apiUrl.loadHtmlDoc(routes.git_url)
-    res.send(routes)
+    apiUrl.requestHtmlDoc(gitUrl)
+        .then(body => {
+            res.json({ body: body })
+        })
+        .catch(err => {
+            throw `Can't load Github document : ${err}`
+        })
 })
 
 
 app.listen(process.env.PORT)
-
 
 module.exports = apiUrl
