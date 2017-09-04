@@ -1,31 +1,31 @@
 {
-  "name": "api.daktary.com",
-  "version": "0.0.1",
-  "description": "High level Github API",
-  "main": "routes.js",
-  "scripts": {
-    "lint": "./node_modules/.bin/eslint .",
-    "test": "./node_modules/.bin/mocha",
-    "start": "node routes.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/daktary-team/api.daktary.com.git"
-  },
-  "author": "S.Langlois - @pointbar",
-  "license": "SEE LICENSE IN CC0 1.0",
-  "bugs": {
-    "url": "https://github.com/daktary-team/api.daktary.com/issues"
-  },
-  "homepage": "https://github.com/daktary-team/api.daktary.com#readme",
-  "devDependencies": {
-    "chai": "^4.0.0",
-    "eslint": "^3.10.2",
-    "mocha": "^3.1.2",
-    "request": "^2.81.0",
-    "request-promise": "^4.2.1"
-  },
-  "dependencies": {
-    "express": "^4.14.0"
-  }
+    "name": "api.daktary.com",
+    "version": "0.0.1",
+    "description": "High level Github API",
+    "main": "routes.js",
+    "scripts": {
+        "lint": "./node_modules/.bin/eslint .",
+        "test": "./node_modules/.bin/mocha",
+        "start": "nodemon --exec 'nf start -p 5000'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/daktary-team/api.daktary.com.git"
+    },
+    "author": "S.Langlois - @pointbar",
+    "license": "SEE LICENSE IN CC0 1.0",
+    "bugs": {
+        "url": "https://github.com/daktary-team/api.daktary.com/issues"
+    },
+    "homepage": "https://github.com/daktary-team/api.daktary.com#readme",
+    "devDependencies": {
+        "nodemon": "^1.11.0",
+        "foreman": "^2.0.0",
+        "chai": "^4.0.0",
+        "eslint": "^3.10.2",
+        "mocha": "^3.1.2",
+        "request": "^2.81.0",
+        "request-promise": "^4.2.1",
+        "express": "^4.14.0"
+    }
 }
