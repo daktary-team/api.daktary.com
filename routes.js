@@ -1,7 +1,8 @@
+const CONFIG = require('./config')
 const express = require('express')
 const app = express()
 const request = require('request-promise')
-const CONFIG = require('./config')
+const md = require('markdown-it')()
 
 
 /**
@@ -72,6 +73,17 @@ apiUrl.requestHtmlDoc = url => {
     }
     return request(options)
 }
+
+
+/**
+ * Convert a markdown encode in base64 to html.
+ *
+ * @param {string} mdBase64 - markdown encode in base64.
+ * @return {String} html - html content.
+ */
+const mdBase64ToHtml = content => md.render(
+    Buffer.from(content, 'base64').toString('utf8')
+)
 
 
 /**
@@ -160,7 +172,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
         .then(body => {
             res.json({
                 meta: { a: 0 },
-                body: Buffer.from(body.content, 'base64').toString('utf8')
+                body: mdBase64ToHtml(body.content)
             })
         })
         .catch(err => {
@@ -171,4 +183,4 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 
 app.listen(process.env.PORT)
 
-module.exports = apiUrl
+module.exports = { apiUrl, mdBase64ToHtml }
