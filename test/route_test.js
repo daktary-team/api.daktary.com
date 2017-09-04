@@ -58,10 +58,27 @@ describe('API -', () => {
     })
 
 
-    describe('Create the Github Api Url for document', () => {
-        it('With right parameters it return Url', () => {
+    describe('Convert base64-markdown', () => {
+        it('Transform base64-markdown in html', () => {
             const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='
             expect(routes.mdBase64ToHtml(content)).to.be.equal('<h1>Hello my love!</h1>\n')
+        })
+    })
+
+
+    describe('Convert metas', () => {
+        it('Transform markdown-metas to json', () => {
+            const yaml = require('js-yaml')
+            const content = 'LS0tCnRpdGxlOiBCb3VsZSB2aWVudCBpY2kgbW9uIGNoaWVuCmdyb3VwZTogcHTDtHNlCi0tLQ=='
+            const json = yaml.load(routes.metaFromMdBase64(content))
+            expect(json.title).to.be.equal('Boule vient ici mon chien')
+            expect(json.groupe).to.be.equal('ptôse')
+        })
+        it('Return undefined when none markdown-metas', () => {
+            const yaml = require('js-yaml')
+            const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='
+            const undef = routes.metaFromMdBase64(content)
+            expect(undef).to.be.undefined
         })
     })
 })

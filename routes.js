@@ -1,8 +1,8 @@
 const CONFIG = require('./config')
-const express = require('express')
-const app = express()
+const app = require('express')()
 const request = require('request-promise')
 const md = require('markdown-it')()
+const yaml = require('js-yaml')
 
 
 /**
@@ -87,7 +87,24 @@ const mdBase64ToHtml = content => md.render(
 
 
 /**
- * Add headers so we can make API requests
+ * Get Github yaml metas from Github ressource.
+ *
+ * @param {string} mdBase64 - markdown encode in base64.
+ * @return {String} metas - metas in yaml format.
+ */
+const metaFromMdBase64 = content => {
+    try {
+        return Buffer.from(content, 'base64')
+            .toString('utf8')
+            .match(/---\n([\s\S]*?)\n---/)[1]
+    } catch (e) {
+        return undefined
+    }
+}
+
+
+/**
+ * Add headers for API requests
  */
 app.use(function(req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*')
@@ -171,16 +188,16 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     apiUrl.requestHtmlDoc(gitUrl)
         .then(body => {
             res.json({
-                meta: { a: 0 },
+                meta: yaml.load(metaFromMdBase64(body.content)),
                 body: mdBase64ToHtml(body.content)
             })
         })
         .catch(err => {
-            throw new Error(`Can't load Github document : ${err}`)
+            throw new Error(`Can't load: ${gitUrl} : ${err}`)
         })
 })
 
 
 app.listen(process.env.PORT)
 
-module.exports = { apiUrl, mdBase64ToHtml }
+module.exports = { apiUrl, mdBase64ToHtml, metaFromMdBase64 }
