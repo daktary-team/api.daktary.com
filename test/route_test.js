@@ -15,18 +15,19 @@ describe('API -', () => {
 
     describe('Create the Github Api Url for document', () => {
         it('With right parameters it return Url', () => {
-            const localDomain = 'https://api.daktary.com'
             const params = {
+                localDomain: 'https://api.daktary.com',
                 owner: 'Antonin',
                 repo: 'momo',
-                path: 'README.md'
+                filename: 'berthe/dugris.md',
+                query: '?ref=master&secret=terces'
             }
             const query = `&ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
-            expect(apiUrl.getApiUrlDoc(localDomain, params, query)).to.be.match(/^https/)
-            expect(apiUrl.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.owner)
-            expect(apiUrl.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.repo)
-            expect(apiUrl.getApiUrlDoc(localDomain, params, query)).to.be.contain(params.path)
-            expect(apiUrl.getApiUrlDoc(localDomain, params, query)).to.be.contain('&')
+            expect(apiUrl.getApiUrlDoc(params)).to.be.match(/^https/)
+            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.owner)
+            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.repo)
+            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.path)
+            expect(apiUrl.getApiUrlDoc(params)).to.be.contain('&')
         })
     })
 
@@ -40,6 +41,37 @@ describe('API -', () => {
             expect(apiUrl.addAuth(CONFIG.ghId, CONFIG.ghSecret)).to.be.equal(
                 '&client_id=964172a90e5c25e97616&client_secret=mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg=='
             )
+        })
+    })
+
+
+    describe('Get filepath with params', () => {
+        it('Get filepath with file and path', () => {
+            const params = {
+                path: 'berthe/',
+                0: 'dugris.md'
+            }
+            expect(apiUrl.getFilePath(params)).to.be.equal('berthe/dugris.md')
+        })
+        it('Get filepath without path', () => {
+            const params = {
+                path: 'README.md',
+                0: ''
+            }
+            expect(apiUrl.getFilePath(params)).to.be.equal('README.md')
+        })
+    })
+
+
+    describe('Check filename extension', () => {
+        it('Check .md extension', () => {
+            expect(apiUrl.isValidFileExt('readme.md')).to.be.true
+        })
+        it('Check .adoc extension', () => {
+            expect(apiUrl.isValidFileExt('readme.adoc')).to.be.true
+        })
+        it('Check bad extension', () => {
+            expect(apiUrl.isValidFileExt('readme.doc')).to.be.false
         })
     })
 

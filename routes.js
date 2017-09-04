@@ -46,14 +46,36 @@ apiUrl.addAuth = (ghId, ghSecret) => {
  * @param {String} query - Github params for queries Url.
  * @return {String} github-url - The API Github Url.
  */
-apiUrl.getApiUrlDoc = (localDomain, params, query) =>
+apiUrl.getApiUrlDoc = ({ localDomain, owner, repo, filepath, query }) =>
     `${localDomain}/repos/` +
-    `${params.owner}/` +
-    `${params.repo}/` +
+    `${owner}/` +
+    `${repo}/` +
     'contents/' +
-    `${params.path}` +
-    `${params[0]}` +
+    filepath +
     query
+
+
+/**
+ * Return the filepath of url parameters.
+ *
+ * @param {Object} url params - Github url items.
+ * @return {String} filepath - path and filename.
+ */
+apiUrl.getFilePath = params =>
+    `${params.path}` + `${params[0]}`
+
+
+/**
+ * Check if file has valids extension.
+ *
+ * @param {String} filepath - path and filename.
+ * @return {boolean} - is valid or not.
+ */
+apiUrl.isValidFileExt = filepath => {
+    const validFileExt =
+        /(.markdown||.mdown||.mkdn||.mkd||.md||asciidoc||.adoc||.asc)$/
+    return filepath.match(validFileExt)[0] !== ''
+}
 
 
 /**
@@ -182,9 +204,17 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-    const gitUrl = apiUrl.getApiUrlDoc(
-        apiUrl.root, req.params, apiUrl.query(req.params.branch)
-    )
+    if (!apiUrl.isValidFileExt(apiUrl.getFilePath(req.params))) {
+        throw new Error(
+            `${apiUrl.getFilePath(req.params)}: not a valid file extension`)
+    }
+    const gitUrl = apiUrl.getApiUrlDoc({
+        localDomain: apiUrl.root,
+        owner: req.params.owner,
+        repo: req.params.repo,
+        filepath: apiUrl.getFilePath(req.params),
+        query: apiUrl.query(req.params.branch)
+    })
     apiUrl.requestHtmlDoc(gitUrl)
         .then(body => {
             res.json({
