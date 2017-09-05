@@ -11,5 +11,5 @@ PR > https://github.com/daktary-team/api.daktary.com/pull/12
 ## US2-consulter-une-page-en-HTML
 PR > https://github.com/daktary-team/api.daktary.com/pull/13  
 
-## US3-recuperer-une-liste-d-elements
+## US3-recuperer-une-liste-d-elements 
 PR > https://github.com/daktary-team/api.daktary.com/pull/14  
