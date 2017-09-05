@@ -1,5 +1,7 @@
 # api.daktary.com
 
+website : http://api.daktary.com
+
 [![Build Status](https://travis-ci.org/daktary-team/api.daktary.com.svg?branch=master)](https://travis-ci.org/daktary-team/api.daktary.com)
 
 ## Installation
@@ -25,10 +27,11 @@ $ heroku config:get GITHUB_SECRET -s  >> .env
 ### Start daktary-api locally
 
 ```bash
-heroku local web
+npm run start
 ```
 
-Then [http://localhost:5000](http://localhost:5000)
+Then [http://localhost:5000](http://localhost:5000)  
+It runs with nodemon and foreman whose watch the modification to restart on change.
 
 ## Play Unit Tests
 
@@ -51,7 +54,7 @@ npm run lint
 
 ### Load a Github document
 
-In your console :
+In your console, you can try :
 
 ```JavaScript
 fetch('http://localhost:5000/daktary-team/api.daktary.com/blob/master/README.md')
