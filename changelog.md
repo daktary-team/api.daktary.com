@@ -8,3 +8,5 @@
 
 ## US2-consulter-une-page-en-HTML
 
+## US3-recuperer-une-liste-d-elements
+
