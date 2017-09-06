@@ -61,7 +61,7 @@ apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
  * @param {Object} url params - Github url items.
  * @return {String} filepath - path and filename.
  */
-apiUrl.getFilePath = params =>
+apiUrl.getPath = params =>
     `${params.path}` + `${params[0]}`
 
 
@@ -104,7 +104,8 @@ apiUrl.request = url => {
  * @return {Object} jsonFiles - Represent the files of Github tree.
  */
 apiUrl.jsonFiles = rawJson =>
-    rawJson.map(({ name, type, html_url }) =>
+    rawJson.filter(({ name, type }) => apiUrl.isValidFileExt(name) || (type !== 'file'))
+    .map(({ name, type, html_url }) =>
         ({ name: name, type: type, html_url: html_url })
     )
 
@@ -197,12 +198,12 @@ app.get('/:owner/:repo', (req, res) => {
  * Convert:  https://api.daktary.com/:owner:/:repo:/tree/:branch:/:path:
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
-app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
+app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
     const gitUrl = apiUrl.getApiUrl({
         localDomain: apiUrl.root,
         owner: req.params.owner,
         repo: req.params.repo,
-        path: req.params.path,
+        path: apiUrl.getPath(req.params),
         query: apiUrl.query(req.params.branch)
     })
     apiUrl.request(gitUrl)
@@ -224,15 +225,15 @@ app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-    if (!apiUrl.isValidFileExt(apiUrl.getFilePath(req.params))) {
+    if (!apiUrl.isValidFileExt(apiUrl.getPath(req.params))) {
         throw new Error(
-            `${apiUrl.getFilePath(req.params)}: not a valid file extension`)
+            `${apiUrl.getPath(req.params)}: not a valid file extension`)
     }
     const gitUrl = apiUrl.getApiUrl({
         localDomain: apiUrl.root,
         owner: req.params.owner,
         repo: req.params.repo,
-        path: apiUrl.getFilePath(req.params),
+        path: apiUrl.getPath(req.params),
         query: apiUrl.query(req.params.branch)
     })
     apiUrl.request(gitUrl)

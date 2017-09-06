@@ -66,20 +66,27 @@ describe('API -', () => {
     })
 
 
-    describe('Get filepath with params', () => {
+    describe('Get path with params', () => {
         it('Get filepath with file and path', () => {
             const params = {
                 path: 'berthe/',
                 0: 'dugris.md'
             }
-            expect(apiUrl.getFilePath(params)).to.be.equal('berthe/dugris.md')
+            expect(apiUrl.getPath(params)).to.be.equal('berthe/dugris.md')
         })
         it('Get filepath without path', () => {
             const params = {
                 path: 'README.md',
                 0: ''
             }
-            expect(apiUrl.getFilePath(params)).to.be.equal('README.md')
+            expect(apiUrl.getPath(params)).to.be.equal('README.md')
+        })
+        it('Get path without file', () => {
+            const params = {
+                path: 'vendor',
+                0: '/fetch/truc'
+            }
+            expect(apiUrl.getPath(params)).to.be.equal('vendor/fetch/truc')
         })
     })
 
@@ -114,7 +121,7 @@ describe('API -', () => {
     describe('Interprete raw Github Json', () => {
         it('Verify fields', () => {
             const rawJson = [{
-                nam: 'README.md',
+                name: 'README.md',
                 path: 'README.md',
                 sha: 'b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
                 size: 2285,
@@ -131,6 +138,15 @@ describe('API -', () => {
             }]
             expect(apiUrl.jsonFiles(rawJson)[0]).to.haveOwnProperty('name')
             expect(apiUrl.jsonFiles(rawJson)[0].type).to.be.equal('file')
+        })
+        it('Only Markdown and Asciidoc', () => {
+            const files = [
+                { name: 'README.md', type: 'file' },
+                { name: 'README.adoc', type: 'file' },
+                { name: 'vendor', type: 'folder' },
+                { name: 'README.txt', type: 'file' }
+            ]
+            expect(apiUrl.jsonFiles(files)).to.be.length(3)
         })
     })
 
