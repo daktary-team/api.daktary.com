@@ -56,8 +56,16 @@ npm run lint
 
 In your console, you can try :
 
+#### For a file
 ```JavaScript
 fetch('http://localhost:5000/daktary-team/api.daktary.com/blob/master/README.md')
+    .then(rep => rep.json())
+    .then(json => console.log(json))
+```
+
+#### For a folder
+```JavaScript
+fetch('http://localhost:5000/daktary-team/api.daktary.com/tree/master/test')
     .then(rep => rep.json())
     .then(json => console.log(json))
 ```
