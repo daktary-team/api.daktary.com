@@ -46,12 +46,12 @@ apiUrl.addAuth = (ghId, ghSecret) => {
  * @param {String} query - Github params for queries Url.
  * @return {String} github-url - The API Github Url.
  */
-apiUrl.getApiUrlDoc = ({ localDomain, owner, repo, filepath, query }) =>
+apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
     `${localDomain}/repos/` +
     `${owner}/` +
     `${repo}/` +
     'contents/' +
-    filepath +
+    path +
     query
 
 
@@ -84,7 +84,7 @@ apiUrl.isValidFileExt = filepath => {
  * @param {String} url - Github url query.
  * @return {Object} request - request to load.
  */
-apiUrl.requestHtmlDoc = url => {
+apiUrl.request = url => {
     const options = {
         url: url,
         headers: {
@@ -95,6 +95,18 @@ apiUrl.requestHtmlDoc = url => {
     }
     return request(options)
 }
+
+
+/**
+ * Transform raw Github tree json to specific json files.
+ *
+ * @param {Object} raw - Github json tree.
+ * @return {Object} jsonFiles - Represent the files of Github tree.
+ */
+apiUrl.jsonFiles = rawJson =>
+    rawJson.map(({ name, type, html_url }) =>
+        ({ name: name, type: type, html_url: html_url })
+    )
 
 
 /**
@@ -186,15 +198,23 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path', (req, res) => {
-    const routes = {
-        git_url: `${apiUrl.root}/repos/` +
-            `${req.params.owner}/` +
-            `${req.params.repo}/` +
-            'contents/' +
-            `${req.params.path}` +
-            apiUrl.query(req.params.branch)
-    }
-    res.json(routes)
+    const gitUrl = apiUrl.getApiUrl({
+        localDomain: apiUrl.root,
+        owner: req.params.owner,
+        repo: req.params.repo,
+        path: req.params.path,
+        query: apiUrl.query(req.params.branch)
+    })
+    apiUrl.request(gitUrl)
+        .then(rawJson => {
+            res.json({
+                meta: {},
+                body: apiUrl.jsonFiles(rawJson)
+            })
+        })
+        .catch(err => {
+            throw new Error(`Can't load: ${gitUrl} : ${err}`)
+        })
 })
 
 
@@ -208,14 +228,14 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
         throw new Error(
             `${apiUrl.getFilePath(req.params)}: not a valid file extension`)
     }
-    const gitUrl = apiUrl.getApiUrlDoc({
+    const gitUrl = apiUrl.getApiUrl({
         localDomain: apiUrl.root,
         owner: req.params.owner,
         repo: req.params.repo,
-        filepath: apiUrl.getFilePath(req.params),
+        path: apiUrl.getFilePath(req.params),
         query: apiUrl.query(req.params.branch)
     })
-    apiUrl.requestHtmlDoc(gitUrl)
+    apiUrl.request(gitUrl)
         .then(body => {
             res.json({
                 meta: yaml.load(metaFromMdBase64(body.content)),
