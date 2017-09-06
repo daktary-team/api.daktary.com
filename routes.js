@@ -104,7 +104,8 @@ apiUrl.request = url => {
  * @return {Object} jsonFiles - Represent the files of Github tree.
  */
 apiUrl.jsonFiles = rawJson =>
-    rawJson.filter(({ name, type }) => apiUrl.isValidFileExt(name) || (type !== 'file'))
+    rawJson.filter(({ name, type }) =>
+        apiUrl.isValidFileExt(name) || (type !== 'file'))
     .map(({ name, type, html_url }) =>
         ({ name: name, type: type, html_url: html_url })
     )
