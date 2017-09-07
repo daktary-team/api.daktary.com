@@ -13,3 +13,6 @@ PR > https://github.com/daktary-team/api.daktary.com/pull/13
 
 ## US3-recuperer-une-liste-d-elements 
 PR > https://github.com/daktary-team/api.daktary.com/pull/14  
+
+## US4-recuperer-une-liste-d-elements
+PR > https://github.com/daktary-team/api.daktary.com/pull/16
