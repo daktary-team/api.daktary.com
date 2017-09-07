@@ -14,20 +14,41 @@ describe('API -', () => {
 
 
     describe('Create the Github Api Url for document', () => {
-        it('With right parameters it return Url', () => {
+        it('With file params, it return Url', () => {
             const params = {
                 localDomain: 'https://api.daktary.com',
                 owner: 'Antonin',
                 repo: 'momo',
-                filename: 'berthe/dugris.md',
-                query: '?ref=master&secret=terces'
+                path: 'berthe/dugris.md',
+                query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
             }
-            const query = `&ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
-            expect(apiUrl.getApiUrlDoc(params)).to.be.match(/^https/)
-            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.owner)
-            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.repo)
-            expect(apiUrl.getApiUrlDoc(params)).to.be.contain(params.path)
-            expect(apiUrl.getApiUrlDoc(params)).to.be.contain('&')
+            expect(apiUrl.getApiUrl(params)).to.be.match(/^https/)
+            expect(apiUrl.getApiUrl(params)).to.be.contain(params.owner)
+            expect(apiUrl.getApiUrl(params)).to.be.contain(params.repo)
+            expect(apiUrl.getApiUrl(params)).to.be.contain(params.path)
+            expect(apiUrl.getApiUrl(params)).to.be.contain('&')
+        })
+        it('With short tree params, it return Url', () => {
+            const params = {
+                localDomain: 'https://api.daktary.com',
+                owner: 'antonin',
+                repo: 'momo',
+                path: 'berthe',
+                query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
+            }
+            const predict = /^https:\/\/api.daktary.com\/repos\/antonin\/momo\/contents\/berth/
+            expect(apiUrl.getApiUrl(params)).to.be.match(predict)
+        })
+        it('With short tree params, it return Url', () => {
+            const params = {
+                localDomain: 'https://api.daktary.com',
+                owner: 'antonin',
+                repo: 'momo',
+                path: 'berthe/arto',
+                query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
+            }
+            const predict = '/repos/antonin/momo/contents/berthe/arto'
+            expect(apiUrl.getApiUrl(params)).to.be.contain(predict)
         })
     })
 
@@ -45,20 +66,27 @@ describe('API -', () => {
     })
 
 
-    describe('Get filepath with params', () => {
+    describe('Get path with params', () => {
         it('Get filepath with file and path', () => {
             const params = {
                 path: 'berthe/',
                 0: 'dugris.md'
             }
-            expect(apiUrl.getFilePath(params)).to.be.equal('berthe/dugris.md')
+            expect(apiUrl.getPath(params)).to.be.equal('berthe/dugris.md')
         })
         it('Get filepath without path', () => {
             const params = {
                 path: 'README.md',
                 0: ''
             }
-            expect(apiUrl.getFilePath(params)).to.be.equal('README.md')
+            expect(apiUrl.getPath(params)).to.be.equal('README.md')
+        })
+        it('Get path without file', () => {
+            const params = {
+                path: 'vendor',
+                0: '/fetch/truc'
+            }
+            expect(apiUrl.getPath(params)).to.be.equal('vendor/fetch/truc')
         })
     })
 
@@ -89,6 +117,38 @@ describe('API -', () => {
         })
     })
 
+
+    describe('Interprete raw Github Json', () => {
+        it('Verify fields', () => {
+            const rawJson = [{
+                name: 'README.md',
+                path: 'README.md',
+                sha: 'b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
+                size: 2285,
+                url: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
+                html_url: 'https://github.com/multibao/organisations/blob/master/README.md',
+                git_url: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
+                download_url: 'https://raw.githubusercontent.com/multibao/organisations/master/README.md',
+                type: 'file',
+                _links: {
+                    self: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
+                    git: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
+                    html: 'https://github.com/multibao/organisations/blob/master/README.md'
+                }
+            }]
+            expect(apiUrl.jsonFiles(rawJson)[0]).to.haveOwnProperty('name')
+            expect(apiUrl.jsonFiles(rawJson)[0].type).to.be.equal('file')
+        })
+        it('Only Markdown and Asciidoc', () => {
+            const files = [
+                { name: 'README.md', type: 'file' },
+                { name: 'README.adoc', type: 'file' },
+                { name: 'vendor', type: 'folder' },
+                { name: 'README.txt', type: 'file' }
+            ]
+            expect(apiUrl.jsonFiles(files)).to.be.length(3)
+        })
+    })
 
     describe('Convert base64-markdown', () => {
         it('Transform base64-markdown in html', () => {
