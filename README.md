@@ -6,7 +6,7 @@ website : http://api.daktary.com
 
 ## Installation
 
-### Rate limit policies
+### Github - Rate limit policies
 
 For requests using Basic Authentication or OAuth, you can make up to 5,000 requests per hour.  
 For unauthenticated requests, the rate limit allows you to make up to 60 requests per hour. - Github
@@ -15,6 +15,18 @@ Read Github instructions to understand the rate limit policies :
 [rate-limit-for-oauth-applications](https://developer.github.com/v3/#increasing-the-unauthenticated-rate-limit-for-oauth-applications)
 
 ## Deploy on Heroku
+
+Install: 
+> https://devcenter.heroku.com/articles/heroku-cli
+
+Start with creating an app
+
+```bash
+$ heroku login
+$ heroku create
+```
+
+Now you can specify your token (cf. Github - Rate limit policies)
 
 ```bash
 $ heroku config:get GITHUB_ID=xxxx
