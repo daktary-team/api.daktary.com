@@ -18,8 +18,8 @@ apiUrl.root = 'https://api.github.com'
  * @param {string} branch - branch's name.
  * @return {String} query - query string with ref=branch&client_id&client_secret.
  */
-apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
-    return `?ref=${branch}${apiUrl.addAuth(ghId, ghSecret)}`
+apiUrl.query = (branch = 'master') => {
+    return `?ref=${branch}${apiUrl.addAuth()}`
 }
 
 
@@ -30,7 +30,10 @@ apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
  * @param {String} ghSecret   Github secret token.
  * @return {String} query   query string with &client_id&client_secret.
  */
-apiUrl.addAuth = (ghId, ghSecret) => {
+apiUrl.addAuth = ({
+    ghId,
+    ghSecret
+} = CONFIG) => {
     if (ghId && ghSecret) {
         return `&client_id=${ghId}&client_secret=${ghSecret}`
     }
@@ -46,7 +49,13 @@ apiUrl.addAuth = (ghId, ghSecret) => {
  * @param {String} query - Github params for queries Url.
  * @return {String} github-url - The API Github Url.
  */
-apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
+apiUrl.getApiUrl = ({
+        localDomain,
+        owner,
+        repo,
+        path,
+        query
+    }) =>
     `${localDomain}/repos/` +
     `${owner}/` +
     `${repo}/` +
@@ -73,7 +82,7 @@ apiUrl.getPath = params =>
  */
 apiUrl.isValidFileExt = filepath => {
     const validFileExt =
-        /(.markdown||.mdown||.mkdn||.mkd||.md||asciidoc||.adoc||.asc)$/
+        /(.markdown||.mdown||.mkdn||.mkd||.md)$/
     return filepath.match(validFileExt)[0] !== ''
 }
 
@@ -98,16 +107,28 @@ apiUrl.request = url => {
 
 
 /**
- * Transform raw Github tree json to specific json files.
- *
+ * Transform raw Github tree json to a list of json files.
+ * Keep only Markdown files and add github token to urls.
+ * 
  * @param {Object} raw - Github json tree.
  * @return {Object} jsonFiles - Represent the files of Github tree.
  */
 apiUrl.jsonFiles = rawJson =>
-    rawJson.filter(({ name, type }) =>
+    rawJson.filter(({
+            name,
+            type
+        }) =>
         apiUrl.isValidFileExt(name) || (type !== 'file'))
-    .map(({ name, type, html_url }) =>
-        ({ name: name, type: type, html_url: html_url })
+    .map(({
+            name,
+            type,
+            url
+        }) =>
+        ({
+            name: name,
+            type: type,
+            url: url + apiUrl.addAuth()
+        })
     )
 
 
@@ -194,6 +215,23 @@ app.get('/:owner/:repo', (req, res) => {
 })
 
 
+const addMetas = (files) =>
+    files.filter(({ name, type }) =>
+        apiUrl.isValidFileExt(name) && (type === 'file')
+    )
+    .map(({ url }) =>
+        apiUrl.request(url).then(response => {
+            return {
+                url: response.url,
+                name: response.name,
+                type: response.type,
+                meta: yaml.load(metaFromMdBase64(response.content)),
+                body: mdBase64ToHtml(response.content)
+            }
+        })
+    )
+
+
 /**
  * Return Github content for a folder
  * Convert:  https://api.daktary.com/:owner:/:repo:/tree/:branch:/:path:
@@ -209,9 +247,9 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
     })
     apiUrl.request(gitUrl)
         .then(rawJson => {
-            res.json({
-                meta: {},
-                body: apiUrl.jsonFiles(rawJson)
+            const promises = addMetas(apiUrl.jsonFiles(rawJson))
+            Promise.all(promises).then(results => {
+                res.json(results)
             })
         })
         .catch(err => {
@@ -252,4 +290,8 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 
 app.listen(process.env.PORT)
 
-module.exports = { apiUrl, mdBase64ToHtml, metaFromMdBase64 }
+module.exports = {
+    apiUrl,
+    mdBase64ToHtml,
+    metaFromMdBase64
+}
