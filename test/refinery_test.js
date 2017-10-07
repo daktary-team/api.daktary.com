@@ -14,6 +14,15 @@ describe('Refinery -', () => {
     })
   })
 
+  describe('Check markdown extension', () => {
+    it('.md', () => {
+      expect(refine.isMkdExt('readme.md')).to.be.true
+    })
+    it('Check bad extension', () => {
+      expect(refine.isMkdExt('readme.doc')).to.be.false
+    })
+  })
+
   describe('Convert base64-markdown', () => {
     it('transform in html', () => {
       const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='

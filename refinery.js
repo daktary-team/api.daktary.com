@@ -5,7 +5,6 @@
 
 const mkd = require('markdown-it')()
 
-
 /**
  * Convert a base64 in utf8.
  *
@@ -14,6 +13,15 @@ const mkd = require('markdown-it')()
  */
 const base64ToUtf8 = base64 =>
   Buffer.from(base64, 'base64').toString('utf8')
+
+/**
+ * Check if file has valids markdown extension.
+ *
+ * @param {String} filepath - path and filename.
+ * @return {boolean} - is valid or not.
+ */
+const isMkdExt = filepath =>
+  filepath.match(/(.markdown||.mdown||.mkdn||.mkd||.md)$/)[0] !== ''
 
 /**
  * Convert a base64 markdown in html.
@@ -38,6 +46,7 @@ const metasFromMkdBase64 = base64Mkd => {
 }
 
 module.exports = {
+  isMkdExt,
   base64ToUtf8,
   // public
   decodeMkdBase64,

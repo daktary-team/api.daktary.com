@@ -116,6 +116,22 @@ app.use(function (req, res, next) {
   next()
 })
 
+const addMetas = (files) =>
+files.filter(({ name, type }) =>
+  apiUrl.isValidFileExt(name) && (type === 'file')
+)
+.map(({ url }) =>
+  apiUrl.request(url).then(response =>
+    ({
+      url: response.url,
+      name: response.name,
+      type: response.type,
+      meta: yaml.load(refine.metasFromMkdBase64(response.content)),
+      body: refine.decodeMkdBase64(response.content)
+    })
+  )
+)
+
 /**
  * Display api's options for the root route
  */
@@ -158,22 +174,6 @@ app.get('/:owner/:repo', (req, res) => {
   }
   res.json(routes)
 })
-
-const addMetas = (files) =>
-  files.filter(({ name, type }) =>
-    apiUrl.isValidFileExt(name) && (type === 'file')
-  )
-  .map(({ url }) =>
-    apiUrl.request(url).then(response =>
-      ({
-        url: response.url,
-        name: response.name,
-        type: response.type,
-        meta: yaml.load(refine.metasFromMkdBase64(response.content)),
-        body: refine.decodeMkdBase64(response.content)
-      })
-    )
-  )
 
 /**
  * Return Github content for a folder
