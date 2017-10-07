@@ -43,13 +43,7 @@ apiUrl.addAuth = ({ ghId, ghSecret } = CONFIG) => {
  * @param {String} query - Github params for queries Url.
  * @return {String} github-url - The API Github Url.
  */
-apiUrl.getApiUrl = ({
-    localDomain,
-    owner,
-    repo,
-    path,
-    query
-  }) =>
+apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
   `${localDomain}/repos/` +
   `${owner}/` +
   `${repo}/` +
@@ -104,38 +98,15 @@ apiUrl.request = url => {
  * @return {Object} jsonFiles - Represent the files of Github tree.
  */
 apiUrl.jsonFiles = rawJson =>
-  rawJson.filter(({
-      name,
-      type
-    }) =>
+  rawJson.filter(({ name, type }) =>
     apiUrl.isValidFileExt(name) || (type !== 'file'))
-  .map(({
-      name,
-      type,
-      url
-    }) =>
+  .map(({ name, type, url }) =>
     ({
       name: name,
       type: type,
       url: url + apiUrl.addAuth()
     })
   )
-
-/**
- * Get Github yaml metas from Github ressource.
- *
- * @param {string} mdBase64 - markdown encode in base64.
- * @return {String} metas - metas in yaml format.
- */
-const metaFromMdBase64 = content => {
-  try {
-    return Buffer.from(content, 'base64')
-      .toString('utf8')
-      .match(/---\n([\s\S]*?)\n---/)[1]
-  } catch (e) {
-    return undefined
-  }
-}
 
 /**
  * Add headers for API requests
@@ -193,15 +164,15 @@ const addMetas = (files) =>
     apiUrl.isValidFileExt(name) && (type === 'file')
   )
   .map(({ url }) =>
-    apiUrl.request(url).then(response => {
-      return {
+    apiUrl.request(url).then(response =>
+      ({
         url: response.url,
         name: response.name,
         type: response.type,
-        meta: yaml.load(metaFromMdBase64(response.content)),
+        meta: yaml.load(refine.metasFromMkdBase64(response.content)),
         body: refine.decodeMkdBase64(response.content)
-      }
-    })
+      })
+    )
   )
 
 /**
@@ -249,7 +220,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   apiUrl.request(gitUrl)
     .then(body => {
       res.json({
-        meta: yaml.load(metaFromMdBase64(body.content)),
+        meta: yaml.load(refine.metasFromMkdBase64(body.content)),
         body: refine.decodeMkdBase64(body.content)
       })
     })
@@ -261,6 +232,5 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 app.listen(process.env.PORT)
 
 module.exports = {
-  apiUrl,
-  metaFromMdBase64
+  apiUrl
 }

@@ -15,4 +15,20 @@ const decodeMkdBase64 = base64Mkd => mkd.render(
     Buffer.from(base64Mkd, 'base64').toString('utf8')
 )
 
-module.exports = { decodeMkdBase64 }
+/**
+ * Get Github yaml metas from Github ressource.
+ *
+ * @param {string} mdBase64 - markdown encode in base64.
+ * @return {String} metas - metas in yaml format.
+ */
+const metasFromMkdBase64 = base64Mkd => {
+  try {
+    return Buffer.from(base64Mkd, 'base64')
+      .toString('utf8')
+      .match(/---\n([\s\S]*?)\n---/)[1]
+  } catch (e) {
+    return undefined
+  }
+}
+
+module.exports = { decodeMkdBase64, metasFromMkdBase64 }

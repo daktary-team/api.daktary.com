@@ -137,19 +137,4 @@ describe('API -', () => {
       expect(apiUrl.jsonFiles(files)).to.be.length(2)
     })
   })
-
-  describe('Convert metas', () => {
-    it('Transform markdown-metas to json', () => {
-      const yaml = require('js-yaml')
-      const content = 'LS0tCnRpdGxlOiBCb3VsZSB2aWVudCBpY2kgbW9uIGNoaWVuCmdyb3VwZTogcHTDtHNlCi0tLQ=='
-      const json = yaml.load(routes.metaFromMdBase64(content))
-      expect(json.title).to.be.equal('Boule vient ici mon chien')
-      expect(json.groupe).to.be.equal('ptôse')
-    })
-    it('Return undefined when none markdown-metas', () => {
-      const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='
-      const undef = routes.metaFromMdBase64(content)
-      expect(undef).to.be.undefined
-    })
-  })
 })

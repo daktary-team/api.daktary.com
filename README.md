@@ -51,6 +51,7 @@ npm run lint
 - supertest
 - Restify vs express
 - uglify
+- README : https://codeburst.io/good-code-vs-bad-code-35624b4e91bc
 
 ## API Usage
 
