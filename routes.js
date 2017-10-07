@@ -29,6 +29,7 @@ apiUrl.query = (branch = 'master') => {
  * @return {String} query   query string with &client_id&client_secret.
  */
 apiUrl.addAuth = ({ ghId, ghSecret } = CONFIG) => {
+  // TODO: check if already exists
   if (ghId && ghSecret) {
     return `&client_id=${ghId}&client_secret=${ghSecret}`
   }
@@ -79,6 +80,7 @@ apiUrl.isValidFileExt = filepath => {
  * @return {Object} request - request to load.
  */
 apiUrl.request = url => {
+  // TODO: Add auth here
   const options = {
     url: url,
     headers: {
@@ -91,24 +93,6 @@ apiUrl.request = url => {
 }
 
 /**
- * Transform raw Github tree json to a list of json files.
- * Keep only Markdown files and add github token to urls.
- *
- * @param {Object} raw - Github json tree.
- * @return {Object} jsonFiles - Represent the files of Github tree.
- */
-apiUrl.jsonFiles = rawJson =>
-  rawJson.filter(({ name, type }) =>
-    apiUrl.isValidFileExt(name) || (type !== 'file'))
-  .map(({ name, type, url }) =>
-    ({
-      name: name,
-      type: type,
-      url: url + apiUrl.addAuth()
-    })
-  )
-
-/**
  * Add headers for API requests
  */
 app.use(function (req, res, next) {
@@ -116,12 +100,13 @@ app.use(function (req, res, next) {
   next()
 })
 
+// TODO: verify which url I want html_url or url from refine.mkdFilesFromTree
 const addMetas = (files) =>
 files.filter(({ name, type }) =>
   apiUrl.isValidFileExt(name) && (type === 'file')
 )
 .map(({ url }) =>
-  apiUrl.request(url).then(response =>
+  apiUrl.request(`${url}${apiUrl.addAuth()}`).then(response =>
     ({
       url: response.url,
       name: response.name,
@@ -190,7 +175,7 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
   })
   apiUrl.request(gitUrl)
     .then(rawJson => {
-      const promises = addMetas(apiUrl.jsonFiles(rawJson))
+      const promises = addMetas(refine.mkdFilesFromTree(rawJson))
       Promise.all(promises).then(results => {
         res.json(results)
       })

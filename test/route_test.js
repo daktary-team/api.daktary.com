@@ -105,36 +105,4 @@ describe('API -', () => {
       expect(apiUrl.query('gh-pages')).to.match(/^\?ref=gh-pages/)
     })
   })
-
-  describe('Interprete raw Github Json', () => {
-    it('Verify fields', () => {
-      const rawJson = [{
-        name: 'README.md',
-        path: 'README.md',
-        sha: 'b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-        size: 2285,
-        url: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
-        html_url: 'https://github.com/multibao/organisations/blob/master/README.md',
-        git_url: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-        download_url: 'https://raw.githubusercontent.com/multibao/organisations/master/README.md',
-        type: 'file',
-        _links: {
-          self: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
-          git: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-          html: 'https://github.com/multibao/organisations/blob/master/README.md'
-        }
-      }]
-      expect(apiUrl.jsonFiles(rawJson)[0]).to.haveOwnProperty('name')
-      expect(apiUrl.jsonFiles(rawJson)[0].type).to.be.equal('file')
-    })
-    it('Only Markdown', () => {
-      const files = [
-                { name: 'README.md', type: 'file' },
-                { name: 'README.adoc', type: 'file' },
-                { name: 'vendor', type: 'folder' },
-                { name: 'README.txt', type: 'file' }
-      ]
-      expect(apiUrl.jsonFiles(files)).to.be.length(2)
-    })
-  })
 })

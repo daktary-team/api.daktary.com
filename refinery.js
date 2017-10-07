@@ -45,10 +45,21 @@ const metasFromMkdBase64 = base64Mkd => {
   }
 }
 
+/**
+ * Transform raw Github tree json to a collection of markdown files.
+ *
+ * @param {Object} githubTree - Github json tree.
+ * @return {Object} jsonFiles - markdown collection files of Github tree.
+ */
+const mkdFilesFromTree = githubTree =>
+  githubTree.filter(({ name, type }) => isMkdExt(name) || (type !== 'file'))
+  .map(({ name, type, url }) => ({ name: name, type: type, url: url }))
+
 module.exports = {
   isMkdExt,
   base64ToUtf8,
   // public
   decodeMkdBase64,
-  metasFromMkdBase64
+  metasFromMkdBase64,
+  mkdFilesFromTree
 }
