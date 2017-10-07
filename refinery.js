@@ -3,6 +3,7 @@
   Post-processing of Github json files
 */
 
+const yaml = require('js-yaml')
 const mkd = require('markdown-it')()
 
 /**
@@ -39,7 +40,7 @@ const decodeMkdBase64 = base64Mkd => mkd.render(base64ToUtf8(base64Mkd))
  */
 const metasFromMkdBase64 = base64Mkd => {
   try {
-    return base64ToUtf8(base64Mkd).match(/---\n([\s\S]*?)\n---/)[1]
+    return yaml.load(base64ToUtf8(base64Mkd).match(/---\n([\s\S]*?)\n---/)[1])
   } catch (e) {
     return undefined
   }

@@ -1,7 +1,6 @@
 const CONFIG = require('./config')
 const app = require('express')()
 const request = require('request-promise')
-const yaml = require('js-yaml')
 
 const refine = require('./refinery')
 
@@ -111,7 +110,7 @@ files.filter(({ name, type }) =>
       url: response.url,
       name: response.name,
       type: response.type,
-      meta: yaml.load(refine.metasFromMkdBase64(response.content)),
+      meta: refine.metasFromMkdBase64(response.content),
       body: refine.decodeMkdBase64(response.content)
     })
   )
@@ -205,7 +204,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   apiUrl.request(gitUrl)
     .then(body => {
       res.json({
-        meta: yaml.load(refine.metasFromMkdBase64(body.content)),
+        meta: refine.metasFromMkdBase64(body.content),
         body: refine.decodeMkdBase64(body.content)
       })
     })

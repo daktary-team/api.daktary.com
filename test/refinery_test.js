@@ -32,9 +32,8 @@ describe('Refinery -', () => {
 
   describe('Extract metas', () => {
     it('transform markdown-metas to json', () => {
-      const yaml = require('js-yaml')
       const content = 'LS0tCnRpdGxlOiBCb3VsZSB2aWVudCBpY2kgbW9uIGNoaWVuCmdyb3VwZTogcHTDtHNlCi0tLQ=='
-      const json = yaml.load(refine.metasFromMkdBase64(content))
+      const json = refine.metasFromMkdBase64(content)
       expect(json.title).to.be.equal('Boule vient ici mon chien')
       expect(json.groupe).to.be.equal('ptôse')
     })
