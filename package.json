@@ -4,7 +4,7 @@
     "description": "High level Github API",
     "main": "routes.js",
     "scripts": {
-        "lint": "./node_modules/.bin/eslint .",
+        "lint": "./node_modules/.bin/standard .",
         "test": "./node_modules/.bin/mocha",
         "start": "nodemon --exec 'nf start -p 5000'"
     },
@@ -20,15 +20,15 @@
     "homepage": "https://github.com/daktary-team/api.daktary.com#readme",
     "devDependencies": {
         "foreman": "^2.0.0",
-        "nodemon": "^1.11.0"
+        "nodemon": "^1.11.0",
+        "chai": "^4.0.0",
+        "mocha": "^3.1.2",
+        "standard": "^10.0.3"
     },
     "dependencies": {
-        "chai": "^4.0.0",
-        "eslint": "^3.10.2",
-        "mocha": "^3.1.2",
         "express": "^4.14.0",
-        "markdown-it": "^8.4.0",
         "js-yaml": "^3.9.1",
+        "markdown-it": "^8.4.0",
         "request": "^2.81.0",
         "request-promise": "^4.2.1"
     }
