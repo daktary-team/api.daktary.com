@@ -7,6 +7,13 @@ const refine = require('../refinery')
 const expect = chai.expect
 
 describe('Refinery -', () => {
+  describe('Convert base64 string', () => {
+    it('to utf8', () => {
+      const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='
+      expect(refine.base64ToUtf8(content)).to.be.equal('# Hello my love!')
+    })
+  })
+
   describe('Convert base64-markdown', () => {
     it('transform in html', () => {
       const content = 'IyBIZWxsbyBteSBsb3ZlIQ=='
