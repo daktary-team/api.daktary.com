@@ -11,15 +11,6 @@ const apiUrl = {}
 apiUrl.root = 'https://api.github.com'
 
 /**
- * Return the filepath of url parameters.
- *
- * @param {Object} url params - Github url items.
- * @return {String} filepath - path and filename.
- */
-apiUrl.getPath = params =>
-  `${params.path}` + `${params[0]}`
-
-/**
  * Check if file has valids extension.
  *
  * @param {String} filepath - path and filename.
@@ -97,7 +88,7 @@ app.get('/:owner', (req, res) => {
     git_url: `${apiUrl.root}/users/` +
       `${req.params.owner}/` +
       'repos' +
-      `?ref=${branch}`
+      `?ref=${req.params.branch}`
   }
   res.json(routes)
 })
@@ -112,7 +103,7 @@ app.get('/:owner/:repo', (req, res) => {
     git_url: `${apiUrl.root}/repos/` +
       `${req.params.owner}/` +
       `${req.params.repo}` +
-      `?ref=${branch}`
+      `?ref=${req.params.branch}`
   }
   res.json(routes)
 })
@@ -127,7 +118,7 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
     localDomain: apiUrl.root,
     owner: req.params.owner,
     repo: req.params.repo,
-    path: apiUrl.getPath(req.params),
+    path: `${req.params.path}${req.params[0]}`,
     branch: req.params.branch
   })
   apiUrl.request(gitUrl)
@@ -148,15 +139,15 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-  if (!apiUrl.isValidFileExt(apiUrl.getPath(req.params))) {
+  if (!apiUrl.isValidFileExt(`${req.params[0]}`)) {
     throw new Error(
-      `${apiUrl.getPath(req.params)}: not a valid file extension`)
+      `${req.params[0]}: not a valid file extension`)
   }
   const gitUrl = ghApiUrl.toGhUrl({
     localDomain: apiUrl.root,
     owner: req.params.owner,
     repo: req.params.repo,
-    path: apiUrl.getPath(req.params),
+    path: `${req.params.path}${req.params[0]}`,
     branch: req.params.branch
   })
   apiUrl.request(gitUrl)
