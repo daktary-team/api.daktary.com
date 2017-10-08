@@ -21,22 +21,6 @@ apiUrl.query = (branch = 'master') => {
 }
 
 /**
- * Create the url to extract document from Github.
- *
- * @param {String} localDomain - The base Url to exchange with Github API.
- * @param {Object} params - Github params - {owner, repo, path}
- * @param {String} query - Github params for queries Url.
- * @return {String} github-url - The API Github Url.
- */
-apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
-  `${localDomain}/repos/` +
-  `${owner}/` +
-  `${repo}/` +
-  'contents/' +
-  path +
-  query
-
-/**
  * Return the filepath of url parameters.
  *
  * @param {Object} url params - Github url items.
@@ -149,7 +133,7 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
-  const gitUrl = apiUrl.getApiUrl({
+  const gitUrl = ghApiUrl.toGhUrl({
     localDomain: apiUrl.root,
     owner: req.params.owner,
     repo: req.params.repo,
@@ -178,7 +162,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     throw new Error(
       `${apiUrl.getPath(req.params)}: not a valid file extension`)
   }
-  const gitUrl = apiUrl.getApiUrl({
+  const gitUrl = ghApiUrl.toGhUrl({
     localDomain: apiUrl.root,
     owner: req.params.owner,
     repo: req.params.repo,

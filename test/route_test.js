@@ -13,45 +13,6 @@ describe('API -', () => {
     ghSecret: 'mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg=='
   }
 
-  describe('Create the Github Api Url for document', () => {
-    it('with file params, it return Url', () => {
-      const params = {
-        localDomain: 'https://api.daktary.com',
-        owner: 'Antonin',
-        repo: 'momo',
-        path: 'berthe/dugris.md',
-        query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
-      }
-      expect(apiUrl.getApiUrl(params)).to.be.match(/^https/)
-      expect(apiUrl.getApiUrl(params)).to.be.contain(params.owner)
-      expect(apiUrl.getApiUrl(params)).to.be.contain(params.repo)
-      expect(apiUrl.getApiUrl(params)).to.be.contain(params.path)
-      expect(apiUrl.getApiUrl(params)).to.be.contain('&')
-    })
-    it('with short tree params, it return Url', () => {
-      const params = {
-        localDomain: 'https://api.daktary.com',
-        owner: 'antonin',
-        repo: 'momo',
-        path: 'berthe',
-        query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
-      }
-      const predict = /^https:\/\/api.daktary.com\/repos\/antonin\/momo\/contents\/berth/
-      expect(apiUrl.getApiUrl(params)).to.be.match(predict)
-    })
-    it('with short tree params, it return Url', () => {
-      const params = {
-        localDomain: 'https://api.daktary.com',
-        owner: 'antonin',
-        repo: 'momo',
-        path: 'berthe/arto',
-        query: `?ref=master&client=${CONFIG.ghId}&secret=${CONFIG.ghSecret}`
-      }
-      const predict = '/repos/antonin/momo/contents/berthe/arto'
-      expect(apiUrl.getApiUrl(params)).to.be.contain(predict)
-    })
-  })
-
   describe('Get path with params', () => {
     it('Get filepath with file and path', () => {
       const params = {

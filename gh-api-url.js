@@ -27,7 +27,22 @@ const addAuth = (url, { ghId, ghSecret } = authRateLimit) => {
   return `${url}${querySymbol}client_id=${ghId}&client_secret=${ghSecret}`
 }
 
+/**
+ * Create the url to extract document from Github.
+ *
+ * @param {Object} params - Github params - {localDomain, owner, repo, path, query}
+ * @return {String} github-url - The API Github Url.
+ */
+const toGhUrl = ({ localDomain, owner, repo, path, query }) =>
+  `${localDomain}/repos/` +
+  `${owner}/` +
+  `${repo}/` +
+  'contents/' +
+  path +
+  query
+
 module.exports = {
   // public
-  addAuth
+  addAuth,
+  toGhUrl
 }

@@ -10,6 +10,7 @@ describe('Github Api Url -', () => {
     ghId: '964172a90e5c25e97616',
     ghSecret: 'mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg=='
   }
+
   describe('Add token to increase github rate limit', () => {
     it('responds empty query when gh_secret or gh_id not present', () => {
       const url = 'https://api.github.com/repos/foo/bar/contents'
@@ -27,6 +28,45 @@ describe('Github Api Url -', () => {
       expect(ghApiUrl.addAuth(url, authRateLimit)).to.be.equal(
         `${url}?client_id=964172a90e5c25e97616&client_secret=mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg==`
       )
+    })
+  })
+
+  describe('Create the Github Api Url for document', () => {
+    it('with file params, it return Url', () => {
+      const params = {
+        localDomain: 'https://api.daktary.com',
+        owner: 'Antonin',
+        repo: 'momo',
+        path: 'berthe/dugris.md',
+        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+      }
+      expect(ghApiUrl.toGhUrl(params)).to.be.match(/^https/)
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.owner)
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.repo)
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.path)
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain('&')
+    })
+    it('with short tree params, it return Url', () => {
+      const params = {
+        localDomain: 'https://api.daktary.com',
+        owner: 'antonin',
+        repo: 'momo',
+        path: 'berthe',
+        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+      }
+      const predict = /^https:\/\/api.daktary.com\/repos\/antonin\/momo\/contents\/berth/
+      expect(ghApiUrl.toGhUrl(params)).to.be.match(predict)
+    })
+    it('with short tree params, it return Url', () => {
+      const params = {
+        localDomain: 'https://api.daktary.com',
+        owner: 'antonin',
+        repo: 'momo',
+        path: 'berthe/arto',
+        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+      }
+      const predict = '/repos/antonin/momo/contents/berthe/arto'
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain(predict)
     })
   })
 })
