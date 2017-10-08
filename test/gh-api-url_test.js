@@ -34,7 +34,6 @@ describe('Github Api Url -', () => {
   describe('Create the Github Api Url for document', () => {
     it('with file params, it return Url', () => {
       const params = {
-        localDomain: 'https://api.daktary.com',
         owner: 'Antonin',
         repo: 'momo',
         path: 'berthe/dugris.md',
@@ -48,18 +47,16 @@ describe('Github Api Url -', () => {
     })
     it('with short tree params, it return Url', () => {
       const params = {
-        localDomain: 'https://api.daktary.com',
         owner: 'antonin',
         repo: 'momo',
         path: 'berthe',
         branch: `?ref=master`
       }
-      const predict = /^https:\/\/api.daktary.com\/repos\/antonin\/momo\/contents\/berth/
+      const predict = /^https:\/\/api.github.com\/repos\/antonin\/momo\/contents\/berth/
       expect(ghApiUrl.toGhUrl(params)).to.be.match(predict)
     })
     it('with short tree params, it return Url', () => {
       const params = {
-        localDomain: 'https://api.daktary.com',
         owner: 'antonin',
         repo: 'momo',
         path: 'berthe/arto',

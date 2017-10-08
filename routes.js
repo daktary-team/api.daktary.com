@@ -22,8 +22,13 @@ const request = url => {
   return requestPromise(options)
 }
 
-// TODO: verify which url I want html_url or url from refine.mkdFilesFromTree
-const addMetas = (files) =>
+/**
+ * Add metas ande decode content for each files from json collections.
+ *
+ * @param {Array} files - Files collection.
+ * @return {Array} files - Files collection with metas and body in html.
+ */
+const addMetas = files =>
 files.filter(({ name, type }) =>
   refine.isMkdExt(name) && (type === 'file')
 )
@@ -40,6 +45,20 @@ files.filter(({ name, type }) =>
 )
 
 /**
+ * Convert express url params to github params.
+ *
+ * @param {Object} expressParams - req.params of express.
+ * @return {Object} request - request to load.
+ */
+const convertToGhParams = reqParams =>
+  ({
+    owner: reqParams.owner,
+    repo: reqParams.repo,
+    path: `${reqParams.path}${reqParams[0]}`,
+    branch: reqParams.branch
+  })
+
+/**
  * Add headers for API requests
  */
 app.use(function (req, res, next) {
@@ -52,10 +71,10 @@ app.use(function (req, res, next) {
  */
 app.get('/', (req, res) => {
   const routes = {
-    repos_url: `${ghApiUrl.localDomain}/{owner}`,
-    repo_url: `${ghApiUrl.localDomain}/{owner}/}repo:`,
-    folder_url: `${ghApiUrl.localDomain}/{owner}/{repo}/tree/{branch}/{path}`,
-    file_url: `${ghApiUrl.localDomain}/{owner}/{repo}/blob/{branch}/{path}`
+    repos_url: 'https://api.github.com/{owner}',
+    repo_url: 'https://api.github.com/{owner}/{repo}',
+    folder_url: 'https://api.github.com/{owner}/{repo}/tree/{branch}/{path}',
+    file_url: 'https://api.github.com/{owner}/{repo}/blob/{branch}/{path}'
   }
   res.json(routes)
 })
@@ -67,10 +86,8 @@ app.get('/', (req, res) => {
  */
 app.get('/:owner', (req, res) => {
   const routes = {
-    git_url: `${ghApiUrl.localDomain}/users/` +
-      `${req.params.owner}/` +
-      'repos' +
-      `?ref=${req.params.branch}`
+    git_url:
+      `https://api.github.com/users/${req.params.owner}/repos?ref=${req.params.branch}`
   }
   res.json(routes)
 })
@@ -82,10 +99,8 @@ app.get('/:owner', (req, res) => {
  */
 app.get('/:owner/:repo', (req, res) => {
   const routes = {
-    git_url: `${ghApiUrl.localDomain}/repos/` +
-      `${req.params.owner}/` +
-      `${req.params.repo}` +
-      `?ref=${req.params.branch}`
+    git_url:
+      `https://api.github.com/repos/${req.params.owner}/${req.params.repo}?ref=${req.params.branch}`
   }
   res.json(routes)
 })
@@ -96,13 +111,7 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
-  const gitUrl = ghApiUrl.toGhUrl({
-    localDomain: ghApiUrl.localDomain,
-    owner: req.params.owner,
-    repo: req.params.repo,
-    path: `${req.params.path}${req.params[0]}`,
-    branch: req.params.branch
-  })
+  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(gitUrl)
     .then(rawJson => {
       const promises = addMetas(refine.mkdFilesFromTree(rawJson))
@@ -123,15 +132,9 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   if (!refine.isMkdExt(`${req.params[0]}`)) {
     throw new Error(
-      `${req.params[0]}: not a valid file extension`)
+      `${req.params[0]}: not a valid markdown file extension`)
   }
-  const gitUrl = ghApiUrl.toGhUrl({
-    localDomain: ghApiUrl.localDomain,
-    owner: req.params.owner,
-    repo: req.params.repo,
-    path: `${req.params.path}${req.params[0]}`,
-    branch: req.params.branch
-  })
+  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(gitUrl)
     .then(body => {
       res.json({

@@ -13,11 +13,6 @@ const authRateLimit = {
 }
 
 /**
- * Configure the parameters for the api Github Url.
- */
-const localDomain = 'https://api.github.com'
-
-/**
  * Add token to url query to increase github rate limit
  *
  * @param {String} ghId default: authRateLimit.ghId   Github user id.
@@ -38,17 +33,11 @@ const addAuth = (url, { ghId, ghSecret } = authRateLimit) => {
  * @param {Object} params - Github params - {localDomain, owner, repo, path, branch}
  * @return {String} github-url - The API Github Url.
  */
-const toGhUrl = ({ localDomain, owner, repo, path, branch }) =>
-  `${localDomain}/repos/` +
-  `${owner}/` +
-  `${repo}/` +
-  'contents/' +
-  path +
-  `?ref=${branch}`
+const toGhUrl = ({ owner, repo, path, branch }) =>
+  `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`
 
 module.exports = {
   // public
-  localDomain,
   addAuth,
   toGhUrl
 }
