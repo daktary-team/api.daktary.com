@@ -13,7 +13,7 @@ const authRateLimit = {
 }
 
 /**
- * Add token to url to increase github rate limit
+ * Add token to url query to increase github rate limit
  *
  * @param {String} ghId default: authRateLimit.ghId   Github user id.
  * @param {String} ghSecret default: authRateLimit.ghSecret   Github secret token.
@@ -30,16 +30,16 @@ const addAuth = (url, { ghId, ghSecret } = authRateLimit) => {
 /**
  * Create the url to extract document from Github.
  *
- * @param {Object} params - Github params - {localDomain, owner, repo, path, query}
+ * @param {Object} params - Github params - {localDomain, owner, repo, path, branch}
  * @return {String} github-url - The API Github Url.
  */
-const toGhUrl = ({ localDomain, owner, repo, path, query }) =>
+const toGhUrl = ({ localDomain, owner, repo, path, branch }) =>
   `${localDomain}/repos/` +
   `${owner}/` +
   `${repo}/` +
   'contents/' +
   path +
-  query
+  `?ref=${branch}`
 
 module.exports = {
   // public

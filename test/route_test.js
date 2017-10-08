@@ -45,13 +45,4 @@ describe('API -', () => {
       expect(apiUrl.isValidFileExt('readme.doc')).to.be.false
     })
   })
-
-  describe('Query', () => {
-    it('start with default branch \'master\'', () => {
-      expect(apiUrl.query()).to.match(/^\?ref=master/)
-    })
-    it('start with specify branch', () => {
-      expect(apiUrl.query('gh-pages')).to.match(/^\?ref=gh-pages/)
-    })
-  })
 })

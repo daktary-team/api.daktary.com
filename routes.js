@@ -11,16 +11,6 @@ const apiUrl = {}
 apiUrl.root = 'https://api.github.com'
 
 /**
- * Create query for api url.
- *
- * @param {string} branch - branch's name.
- * @return {String} query - query string with ref=branch&client_id&client_secret.
- */
-apiUrl.query = (branch = 'master') => {
-  return `?ref=${branch}`
-}
-
-/**
  * Return the filepath of url parameters.
  *
  * @param {Object} url params - Github url items.
@@ -40,14 +30,6 @@ apiUrl.isValidFileExt = filepath => {
     /(.markdown||.mdown||.mkdn||.mkd||.md)$/
   return filepath.match(validFileExt)[0] !== ''
 }
-
-/**
- * Add headers for API requests
- */
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  next()
-})
 
 /**
  * Get an html ressource from Github
@@ -85,6 +67,14 @@ files.filter(({ name, type }) =>
 )
 
 /**
+ * Add headers for API requests
+ */
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  next()
+})
+
+/**
  * Display api's options for the root route
  */
 app.get('/', (req, res) => {
@@ -107,7 +97,7 @@ app.get('/:owner', (req, res) => {
     git_url: `${apiUrl.root}/users/` +
       `${req.params.owner}/` +
       'repos' +
-      apiUrl.query()
+      `?ref=${branch}`
   }
   res.json(routes)
 })
@@ -122,7 +112,7 @@ app.get('/:owner/:repo', (req, res) => {
     git_url: `${apiUrl.root}/repos/` +
       `${req.params.owner}/` +
       `${req.params.repo}` +
-      apiUrl.query()
+      `?ref=${branch}`
   }
   res.json(routes)
 })
@@ -138,7 +128,7 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
     owner: req.params.owner,
     repo: req.params.repo,
     path: apiUrl.getPath(req.params),
-    query: apiUrl.query(req.params.branch)
+    branch: req.params.branch
   })
   apiUrl.request(gitUrl)
     .then(rawJson => {
@@ -167,7 +157,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     owner: req.params.owner,
     repo: req.params.repo,
     path: apiUrl.getPath(req.params),
-    query: apiUrl.query(req.params.branch)
+    branch: req.params.branch
   })
   apiUrl.request(gitUrl)
     .then(body => {

@@ -38,13 +38,13 @@ describe('Github Api Url -', () => {
         owner: 'Antonin',
         repo: 'momo',
         path: 'berthe/dugris.md',
-        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+        branch: `?ref=master`
       }
       expect(ghApiUrl.toGhUrl(params)).to.be.match(/^https/)
       expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.owner)
       expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.repo)
       expect(ghApiUrl.toGhUrl(params)).to.be.contain(params.path)
-      expect(ghApiUrl.toGhUrl(params)).to.be.contain('&')
+      expect(ghApiUrl.toGhUrl(params)).to.be.contain('?ref=')
     })
     it('with short tree params, it return Url', () => {
       const params = {
@@ -52,7 +52,7 @@ describe('Github Api Url -', () => {
         owner: 'antonin',
         repo: 'momo',
         path: 'berthe',
-        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+        branch: `?ref=master`
       }
       const predict = /^https:\/\/api.daktary.com\/repos\/antonin\/momo\/contents\/berth/
       expect(ghApiUrl.toGhUrl(params)).to.be.match(predict)
@@ -63,7 +63,7 @@ describe('Github Api Url -', () => {
         owner: 'antonin',
         repo: 'momo',
         path: 'berthe/arto',
-        query: `?ref=master&client=${authRateLimit.ghId}&secret=${authRateLimit.ghSecret}`
+        branch: `?ref=master`
       }
       const predict = '/repos/antonin/momo/contents/berthe/arto'
       expect(ghApiUrl.toGhUrl(params)).to.be.contain(predict)
