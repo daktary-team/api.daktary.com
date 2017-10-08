@@ -1,7 +1,7 @@
-const CONFIG = require('./config')
 const app = require('express')()
 const request = require('request-promise')
 
+const ghApiUrl = require('./gh-api-url')
 const refine = require('./refinery')
 
 /**
@@ -17,22 +17,7 @@ apiUrl.root = 'https://api.github.com'
  * @return {String} query - query string with ref=branch&client_id&client_secret.
  */
 apiUrl.query = (branch = 'master') => {
-  return `?ref=${branch}${apiUrl.addAuth()}`
-}
-
-/**
- * Add token to query to increase github rate limit
- *
- * @param {String} ghId default: CONFIG.ghId    Github user id.
- * @param {String} ghSecret default: CONFIG.ghSecret    Github secret token.
- * @return {String} query   query string with &client_id&client_secret.
- */
-apiUrl.addAuth = ({ ghId, ghSecret } = CONFIG) => {
-  // TODO: check if already exists
-  if (ghId && ghSecret) {
-    return `&client_id=${ghId}&client_secret=${ghSecret}`
-  }
-  return ''
+  return `?ref=${branch}`
 }
 
 /**
@@ -73,15 +58,22 @@ apiUrl.isValidFileExt = filepath => {
 }
 
 /**
+ * Add headers for API requests
+ */
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  next()
+})
+
+/**
  * Get an html ressource from Github
  *
  * @param {String} url - Github url query.
  * @return {Object} request - request to load.
  */
 apiUrl.request = url => {
-  // TODO: Add auth here
   const options = {
-    url: url,
+    url: `${ghApiUrl.addAuth(url)}`,
     headers: {
       'User-Agent': 'daktary',
       Accept: 'application/vnd.github.v3.json'
@@ -91,21 +83,13 @@ apiUrl.request = url => {
   return request(options)
 }
 
-/**
- * Add headers for API requests
- */
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  next()
-})
-
 // TODO: verify which url I want html_url or url from refine.mkdFilesFromTree
 const addMetas = (files) =>
 files.filter(({ name, type }) =>
   apiUrl.isValidFileExt(name) && (type === 'file')
 )
 .map(({ url }) =>
-  apiUrl.request(`${url}${apiUrl.addAuth()}`).then(response =>
+  apiUrl.request(url).then(response =>
     ({
       url: response.url,
       name: response.name,

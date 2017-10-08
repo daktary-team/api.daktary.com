@@ -52,18 +52,6 @@ describe('API -', () => {
     })
   })
 
-  describe('Add token to increase github rate limit', () => {
-    it('responds empty string when gh_secret or gh_id not present', () => {
-      expect(apiUrl.addAuth(CONFIG.ghId, undefined)).to.be.equal('')
-      expect(apiUrl.addAuth(undefined, CONFIG.ghSecret)).to.be.equal('')
-    })
-    it('responds correct string when gh_secret or gh_id are present', () => {
-      expect(apiUrl.addAuth(CONFIG)).to.be.equal(
-                '&client_id=964172a90e5c25e97616&client_secret=mUW1ZmRkZGGjOTZlVGM2ZTc1nMI4NjRjYTI3Y2RxZGYyNzdmZTdkZg=='
-            )
-    })
-  })
-
   describe('Get path with params', () => {
     it('Get filepath with file and path', () => {
       const params = {

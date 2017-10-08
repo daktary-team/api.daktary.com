@@ -67,10 +67,10 @@ describe('Refinery -', () => {
     })
     it('Only Markdown and folder', () => {
       const tree = [
-                { name: 'README.md', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.md?ref=master' },
-                { name: 'README.adoc', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.adoc?ref=master' },
-                { name: 'vendor', type: 'dir', url: 'https://api.github.com/repos/foo/bar/contents/vendor?ref=master'},
-                { name: 'README.txt', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.txt?ref=master'}
+        { name: 'README.md', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.md?ref=master' },
+        { name: 'README.adoc', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.adoc?ref=master' },
+        { name: 'vendor', type: 'dir', url: 'https://api.github.com/repos/foo/bar/contents/vendor?ref=master' },
+        { name: 'README.txt', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.txt?ref=master' }
       ]
       expect(refine.mkdFilesFromTree(tree)).to.be.length(2)
     })

@@ -52,6 +52,7 @@ npm run lint
 - Restify vs express
 - uglify
 - README : https://codeburst.io/good-code-vs-bad-code-35624b4e91bc
+- dist-src folders
 
 ## API Usage
 

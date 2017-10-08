@@ -4,7 +4,7 @@
     "description": "High level Github API",
     "main": "routes.js",
     "scripts": {
-        "lint": "./node_modules/.bin/standard .",
+        "lint": "./node_modules/.bin/standard",
         "test": "./node_modules/.bin/mocha",
         "start": "nodemon --exec 'nf start -p 5000'"
     },
