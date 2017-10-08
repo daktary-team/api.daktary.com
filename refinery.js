@@ -57,9 +57,9 @@ const mkdFilesFromTree = githubTree =>
   .map(({ name, type, url }) => ({ name: name, type: type, url: url }))
 
 module.exports = {
-  isMkdExt,
   base64ToUtf8,
   // public
+  isMkdExt,
   decodeMkdBase64,
   metasFromMkdBase64,
   mkdFilesFromTree

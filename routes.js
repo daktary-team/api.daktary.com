@@ -1,26 +1,8 @@
 const app = require('express')()
-const request = require('request-promise')
+const requestPromise = require('request-promise')
 
 const ghApiUrl = require('./gh-api-url')
 const refine = require('./refinery')
-
-/**
- * Configure the parameters for the api Github Url.
- */
-const apiUrl = {}
-apiUrl.root = 'https://api.github.com'
-
-/**
- * Check if file has valids extension.
- *
- * @param {String} filepath - path and filename.
- * @return {boolean} - is valid or not.
- */
-apiUrl.isValidFileExt = filepath => {
-  const validFileExt =
-    /(.markdown||.mdown||.mkdn||.mkd||.md)$/
-  return filepath.match(validFileExt)[0] !== ''
-}
 
 /**
  * Get an html ressource from Github
@@ -28,7 +10,7 @@ apiUrl.isValidFileExt = filepath => {
  * @param {String} url - Github url query.
  * @return {Object} request - request to load.
  */
-apiUrl.request = url => {
+const request = url => {
   const options = {
     url: `${ghApiUrl.addAuth(url)}`,
     headers: {
@@ -37,16 +19,16 @@ apiUrl.request = url => {
     },
     json: true
   }
-  return request(options)
+  return requestPromise(options)
 }
 
 // TODO: verify which url I want html_url or url from refine.mkdFilesFromTree
 const addMetas = (files) =>
 files.filter(({ name, type }) =>
-  apiUrl.isValidFileExt(name) && (type === 'file')
+  refine.isMkdExt(name) && (type === 'file')
 )
 .map(({ url }) =>
-  apiUrl.request(url).then(response =>
+  request(url).then(response =>
     ({
       url: response.url,
       name: response.name,
@@ -70,10 +52,10 @@ app.use(function (req, res, next) {
  */
 app.get('/', (req, res) => {
   const routes = {
-    repos_url: `${apiUrl.root}/{owner}`,
-    repo_url: `${apiUrl.root}/{owner}/}repo:`,
-    folder_url: `${apiUrl.root}/{owner}/{repo}/tree/{branch}/{path}`,
-    file_url: `${apiUrl.root}/{owner}/{repo}/blob/{branch}/{path}`
+    repos_url: `${ghApiUrl.localDomain}/{owner}`,
+    repo_url: `${ghApiUrl.localDomain}/{owner}/}repo:`,
+    folder_url: `${ghApiUrl.localDomain}/{owner}/{repo}/tree/{branch}/{path}`,
+    file_url: `${ghApiUrl.localDomain}/{owner}/{repo}/blob/{branch}/{path}`
   }
   res.json(routes)
 })
@@ -85,7 +67,7 @@ app.get('/', (req, res) => {
  */
 app.get('/:owner', (req, res) => {
   const routes = {
-    git_url: `${apiUrl.root}/users/` +
+    git_url: `${ghApiUrl.localDomain}/users/` +
       `${req.params.owner}/` +
       'repos' +
       `?ref=${req.params.branch}`
@@ -100,7 +82,7 @@ app.get('/:owner', (req, res) => {
  */
 app.get('/:owner/:repo', (req, res) => {
   const routes = {
-    git_url: `${apiUrl.root}/repos/` +
+    git_url: `${ghApiUrl.localDomain}/repos/` +
       `${req.params.owner}/` +
       `${req.params.repo}` +
       `?ref=${req.params.branch}`
@@ -115,13 +97,13 @@ app.get('/:owner/:repo', (req, res) => {
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
   const gitUrl = ghApiUrl.toGhUrl({
-    localDomain: apiUrl.root,
+    localDomain: ghApiUrl.localDomain,
     owner: req.params.owner,
     repo: req.params.repo,
     path: `${req.params.path}${req.params[0]}`,
     branch: req.params.branch
   })
-  apiUrl.request(gitUrl)
+  request(gitUrl)
     .then(rawJson => {
       const promises = addMetas(refine.mkdFilesFromTree(rawJson))
       Promise.all(promises).then(results => {
@@ -139,18 +121,18 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-  if (!apiUrl.isValidFileExt(`${req.params[0]}`)) {
+  if (!refine.isMkdExt(`${req.params[0]}`)) {
     throw new Error(
       `${req.params[0]}: not a valid file extension`)
   }
   const gitUrl = ghApiUrl.toGhUrl({
-    localDomain: apiUrl.root,
+    localDomain: ghApiUrl.localDomain,
     owner: req.params.owner,
     repo: req.params.repo,
     path: `${req.params.path}${req.params[0]}`,
     branch: req.params.branch
   })
-  apiUrl.request(gitUrl)
+  request(gitUrl)
     .then(body => {
       res.json({
         meta: refine.metasFromMkdBase64(body.content),
@@ -163,7 +145,3 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 })
 
 app.listen(process.env.PORT)
-
-module.exports = {
-  apiUrl
-}
