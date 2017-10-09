@@ -23,25 +23,17 @@ const request = url => {
 }
 
 /**
- * Add metas ande decode content for each files from json collections.
+ * Add metas for each files from json collections.
  *
  * @param {Array} files - Files collection.
- * @return {Array} files - Files collection with metas and body in html.
+ * @return {Array} files - Files collection with metas.
  */
 const addMetas = files =>
 files.filter(({ name, type }) =>
-  refine.isMkdExt(name) && (type === 'file')
+  refine.isMkdExt(name) || (type === 'file')
 )
 .map(({ url }) =>
-  request(url).then(response =>
-    ({
-      url: response.url,
-      name: response.name,
-      type: response.type,
-      meta: refine.metasFromMkdBase64(response.content),
-      body: refine.decodeMkdBase64(response.content)
-    })
-  )
+  request(url).then(ghBlob => refine.ghMkd(ghBlob))
 )
 
 /**
@@ -136,11 +128,8 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   }
   const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(gitUrl)
-    .then(body => {
-      res.json({
-        meta: refine.metasFromMkdBase64(body.content),
-        body: refine.decodeMkdBase64(body.content)
-      })
+    .then(ghBlob => {
+      res.json(refine.ghMkd(ghBlob))
     })
     .catch(err => {
       throw new Error(`Can't load: ${gitUrl} : ${err}`)

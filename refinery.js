@@ -25,12 +25,26 @@ const isMkdExt = filepath =>
   filepath.match(/(.markdown||.mdown||.mkdn||.mkd||.md)$/)[0] !== ''
 
 /**
+ * Remove metas.
+ *
+ * @param {string} mkd - mkd content.
+ * @return {String} mkd - mkd without meta.
+ */
+const removeMetas = mkd => {
+  const splitMeta = mkd.match(/---\n[\s\S]*?\n---\n([\s\S]*)/)
+  if (splitMeta) {
+    return splitMeta[1]
+  }
+  return mkd
+}
+
+/**
  * Convert a base64 markdown in html.
  *
  * @param {string} base64Mkd - string encode in base64.
  * @return {String} utf8 - utf8 content.
  */
-const decodeMkdBase64 = base64Mkd => mkd.render(base64ToUtf8(base64Mkd))
+const contentFromMkdBase64 = base64Mkd => mkd.render(removeMetas(base64ToUtf8(base64Mkd)))
 
 /**
  * Get Github yaml metas from Github ressource.
@@ -47,7 +61,22 @@ const metasFromMkdBase64 = base64Mkd => {
 }
 
 /**
- * Transform raw Github tree json to a collection of markdown files.
+ * Refine raw Github json file.
+ *
+ * @param {Object} ghMkdFile - Github json file.
+ * @return {Object} jsonFile - markdown file refined.
+ */
+const ghMkd = ghMkdFile =>
+  ({
+    name: ghMkdFile.name,
+    url: ghMkdFile.url,
+    type: ghMkdFile.type,
+    meta: metasFromMkdBase64(ghMkdFile.content),
+    body: contentFromMkdBase64(ghMkdFile.content)
+  })
+
+/**
+ * Transform raw Github json tree to a collection of markdown files.
  *
  * @param {Object} githubTree - Github json tree.
  * @return {Object} jsonFiles - markdown collection files of Github tree.
@@ -58,9 +87,11 @@ const mkdFilesFromTree = githubTree =>
 
 module.exports = {
   base64ToUtf8,
+  removeMetas,
+  contentFromMkdBase64,
+  metasFromMkdBase64,
   // public
   isMkdExt,
-  decodeMkdBase64,
-  metasFromMkdBase64,
+  ghMkd,
   mkdFilesFromTree
 }
