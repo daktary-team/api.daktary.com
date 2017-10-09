@@ -1,82 +1,8 @@
-const CONFIG = require('./config')
 const app = require('express')()
-const request = require('request-promise')
-const md = require('markdown-it')()
-const yaml = require('js-yaml')
+const requestPromise = require('request-promise')
 
-
-/**
- * Configure the parameters for the api Github Url.
- */
-const apiUrl = {}
-apiUrl.root = 'https://api.github.com'
-
-
-/**
- * Create query for api url.
- *
- * @param {string} branch - branch's name.
- * @return {String} query - query string with ref=branch&client_id&client_secret.
- */
-apiUrl.query = (branch = 'master', { ghId, ghSecret } = CONFIG) => {
-    return `?ref=${branch}${apiUrl.addAuth(ghId, ghSecret)}`
-}
-
-
-/**
- * Add token to query to increase github rate limit
- *
- * @param {String} ghId   Github user id.
- * @param {String} ghSecret   Github secret token.
- * @return {String} query   query string with &client_id&client_secret.
- */
-apiUrl.addAuth = (ghId, ghSecret) => {
-    if (ghId && ghSecret) {
-        return `&client_id=${ghId}&client_secret=${ghSecret}`
-    }
-    return ''
-}
-
-
-/**
- * Create the url to extract document from Github.
- *
- * @param {String} localDomain - The base Url to exchange with Github API.
- * @param {Object} params - Github params - {owner, repo, path}
- * @param {String} query - Github params for queries Url.
- * @return {String} github-url - The API Github Url.
- */
-apiUrl.getApiUrl = ({ localDomain, owner, repo, path, query }) =>
-    `${localDomain}/repos/` +
-    `${owner}/` +
-    `${repo}/` +
-    'contents/' +
-    path +
-    query
-
-
-/**
- * Return the filepath of url parameters.
- *
- * @param {Object} url params - Github url items.
- * @return {String} filepath - path and filename.
- */
-apiUrl.getPath = params =>
-    `${params.path}` + `${params[0]}`
-
-
-/**
- * Check if file has valids extension.
- *
- * @param {String} filepath - path and filename.
- * @return {boolean} - is valid or not.
- */
-apiUrl.isValidFileExt = filepath => {
-    const validFileExt =
-        /(.markdown||.mdown||.mkdn||.mkd||.md||asciidoc||.adoc||.asc)$/
-    return filepath.match(validFileExt)[0] !== ''
-}
-
+const ghApiUrl = require('./gh-api-url')
+const refine = require('./refinery')
 
 /**
  * Get an html ressource from Github
@@ -84,83 +10,66 @@ apiUrl.isValidFileExt = filepath => {
  * @param {String} url - Github url query.
  * @return {Object} request - request to load.
  */
-apiUrl.request = url => {
-    const options = {
-        url: url,
-        headers: {
-            'User-Agent': 'daktary',
-            Accept: 'application/vnd.github.v3.json'
-        },
-        json: true
-    }
-    return request(options)
+const request = url => {
+  const options = {
+    url: `${ghApiUrl.addAuth(url)}`,
+    headers: {
+      'User-Agent': 'daktary',
+      Accept: 'application/vnd.github.v3.json'
+    },
+    json: true
+  }
+  return requestPromise(options)
 }
 
+/**
+ * Add metas for each files from json collections.
+ *
+ * @param {Array} files - Files collection.
+ * @return {Array} files - Files collection with metas.
+ */
+const addMetas = files =>
+  files.filter(({ name, type }) =>
+    refine.isMkdExt(name) && type === 'file'
+  )
+  .map(({ url }) =>
+    request(url).then(ghBlob => refine.ghMkd(ghBlob))
+  )
 
 /**
- * Transform raw Github tree json to specific json files.
+ * Convert express url params to github params.
  *
- * @param {Object} raw - Github json tree.
- * @return {Object} jsonFiles - Represent the files of Github tree.
+ * @param {Object} expressParams - req.params of express.
+ * @return {Object} request - request to load.
  */
-apiUrl.jsonFiles = rawJson =>
-    rawJson.filter(({ name, type }) =>
-        apiUrl.isValidFileExt(name) || (type !== 'file'))
-    .map(({ name, type, html_url }) =>
-        ({ name: name, type: type, html_url: html_url })
-    )
-
-
-/**
- * Convert a markdown encode in base64 to html.
- *
- * @param {string} mdBase64 - markdown encode in base64.
- * @return {String} html - html content.
- */
-const mdBase64ToHtml = content => md.render(
-    Buffer.from(content, 'base64').toString('utf8')
-)
-
-
-/**
- * Get Github yaml metas from Github ressource.
- *
- * @param {string} mdBase64 - markdown encode in base64.
- * @return {String} metas - metas in yaml format.
- */
-const metaFromMdBase64 = content => {
-    try {
-        return Buffer.from(content, 'base64')
-            .toString('utf8')
-            .match(/---\n([\s\S]*?)\n---/)[1]
-    } catch (e) {
-        return undefined
-    }
-}
-
+const convertToGhParams = reqParams =>
+  ({
+    owner: reqParams.owner,
+    repo: reqParams.repo,
+    path: `${reqParams.path}${reqParams[0]}`,
+    branch: reqParams.branch
+  })
 
 /**
  * Add headers for API requests
  */
-app.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    next()
+app.use(function (req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  next()
 })
-
 
 /**
  * Display api's options for the root route
  */
 app.get('/', (req, res) => {
-    const routes = {
-        repos_url: `${apiUrl.root}/{owner}`,
-        repo_url: `${apiUrl.root}/{owner}/}repo:`,
-        folder_url: `${apiUrl.root}/{owner}/{repo}/tree/{branch}/{path}`,
-        file_url: `${apiUrl.root}/{owner}/{repo}/blob/{branch}/{path}`
-    }
-    res.json(routes)
+  const routes = {
+    repos_url: 'https://api.github.com/{owner}',
+    repo_url: 'https://api.github.com/{owner}/{repo}',
+    folder_url: 'https://api.github.com/{owner}/{repo}/tree/{branch}/{path}',
+    file_url: 'https://api.github.com/{owner}/{repo}/blob/{branch}/{path}'
+  }
+  res.json(routes)
 })
-
 
 /**
  * Return Github content for a repositories
@@ -168,15 +77,12 @@ app.get('/', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:
  */
 app.get('/:owner', (req, res) => {
-    const routes = {
-        git_url: `${apiUrl.root}/users/` +
-            `${req.params.owner}/` +
-            'repos' +
-            apiUrl.query()
-    }
-    res.json(routes)
+  const routes = {
+    git_url:
+      `https://api.github.com/users/${req.params.owner}/repos?ref=${req.params.branch}`
+  }
+  res.json(routes)
 })
-
 
 /**
  * Return Github content for a repository
@@ -184,15 +90,12 @@ app.get('/:owner', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:
  */
 app.get('/:owner/:repo', (req, res) => {
-    const routes = {
-        git_url: `${apiUrl.root}/repos/` +
-            `${req.params.owner}/` +
-            `${req.params.repo}` +
-            apiUrl.query()
-    }
-    res.json(routes)
+  const routes = {
+    git_url:
+      `https://api.github.com/repos/${req.params.owner}/${req.params.repo}?ref=${req.params.branch}`
+  }
+  res.json(routes)
 })
-
 
 /**
  * Return Github content for a folder
@@ -200,25 +103,19 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
-    const gitUrl = apiUrl.getApiUrl({
-        localDomain: apiUrl.root,
-        owner: req.params.owner,
-        repo: req.params.repo,
-        path: apiUrl.getPath(req.params),
-        query: apiUrl.query(req.params.branch)
+  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
+  request(gitUrl)
+    .then(rawJson => {
+      const promises = addMetas(refine.mkdFilesFromTree(rawJson))
+      Promise.all(promises).then(jsonFiles => {
+        const jsonFolders = rawJson.filter(json => json.type === 'dir')
+        res.json(jsonFolders.concat(jsonFiles))
+      })
     })
-    apiUrl.request(gitUrl)
-        .then(rawJson => {
-            res.json({
-                meta: {},
-                body: apiUrl.jsonFiles(rawJson)
-            })
-        })
-        .catch(err => {
-            throw new Error(`Can't load: ${gitUrl} : ${err}`)
-        })
+    .catch(err => {
+      throw new Error(`Can't load: ${gitUrl} : ${err}`)
+    })
 })
-
 
 /**
  * Return Github content for a file
@@ -226,30 +123,18 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-    if (!apiUrl.isValidFileExt(apiUrl.getPath(req.params))) {
-        throw new Error(
-            `${apiUrl.getPath(req.params)}: not a valid file extension`)
-    }
-    const gitUrl = apiUrl.getApiUrl({
-        localDomain: apiUrl.root,
-        owner: req.params.owner,
-        repo: req.params.repo,
-        path: apiUrl.getPath(req.params),
-        query: apiUrl.query(req.params.branch)
+  if (!refine.isMkdExt(`${req.params[0]}`)) {
+    throw new Error(
+      `${req.params[0]}: not a valid markdown file extension`)
+  }
+  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
+  request(gitUrl)
+    .then(ghBlob => {
+      res.json(refine.ghMkd(ghBlob))
     })
-    apiUrl.request(gitUrl)
-        .then(body => {
-            res.json({
-                meta: yaml.load(metaFromMdBase64(body.content)),
-                body: mdBase64ToHtml(body.content)
-            })
-        })
-        .catch(err => {
-            throw new Error(`Can't load: ${gitUrl} : ${err}`)
-        })
+    .catch(err => {
+      throw new Error(`Can't load: ${gitUrl} : ${err}`)
+    })
 })
 
-
 app.listen(process.env.PORT)
-
-module.exports = { apiUrl, mdBase64ToHtml, metaFromMdBase64 }

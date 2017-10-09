@@ -3,6 +3,7 @@
 website : http://api.daktary.com
 
 [![Build Status](https://travis-ci.org/daktary-team/api.daktary.com.svg?branch=master)](https://travis-ci.org/daktary-team/api.daktary.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Installation
 
@@ -61,6 +62,9 @@ npm run lint
 - [cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
 - supertest
 - Restify vs express
+- uglify
+- README : https://codeburst.io/good-code-vs-bad-code-35624b4e91bc
+- dist-src folders
 
 ## API Usage
 

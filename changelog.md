@@ -12,4 +12,7 @@ PR > https://github.com/daktary-team/api.daktary.com/pull/12
 PR > https://github.com/daktary-team/api.daktary.com/pull/13  
 
 ## US3-recuperer-une-liste-d-elements 
-PR > https://github.com/daktary-team/api.daktary.com/pull/14  
+PR > https://github.com/daktary-team/api.daktary.com/pull/19  
+
+## US4-recuperer-les-metas-d-une-liste
+PR > https://github.com/daktary-team/api.daktary.com/pull/21
