@@ -29,12 +29,12 @@ const request = url => {
  * @return {Array} files - Files collection with metas.
  */
 const addMetas = files =>
-files.filter(({ name, type }) =>
-  refine.isMkdExt(name) || (type === 'file')
-)
-.map(({ url }) =>
-  request(url).then(ghBlob => refine.ghMkd(ghBlob))
-)
+  files.filter(({ name, type }) =>
+    refine.isMkdExt(name) && type === 'file'
+  )
+  .map(({ url }) =>
+    request(url).then(ghBlob => refine.ghMkd(ghBlob))
+  )
 
 /**
  * Convert express url params to github params.
@@ -107,8 +107,9 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
   request(gitUrl)
     .then(rawJson => {
       const promises = addMetas(refine.mkdFilesFromTree(rawJson))
-      Promise.all(promises).then(results => {
-        res.json(results)
+      Promise.all(promises).then(jsonFiles => {
+        const jsonFolders = rawJson.filter(json => json.type === 'dir')
+        res.json(jsonFolders.concat(jsonFiles))
       })
     })
     .catch(err => {

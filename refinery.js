@@ -31,11 +31,11 @@ const isMkdExt = filepath =>
  * @return {String} mkd - mkd without meta.
  */
 const removeMetas = mkd => {
-  const splitMeta = mkd.match(/---\n[\s\S]*?\n---\n([\s\S]*)/)
-  if (splitMeta) {
-    return splitMeta[1]
+  try {
+    return mkd.match(/---\n[\s\S]*?\n---\n([\s\S]*)/)[1]
+  } catch (e) {
+    return mkd
   }
-  return mkd
 }
 
 /**
