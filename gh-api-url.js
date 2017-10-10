@@ -33,9 +33,15 @@ const addAuth = (url, { ghId, ghSecret } = authRateLimit) => {
  * @param {Object} params - Github params - {localDomain, owner, repo, path, branch}
  * @return {String} github-url - The API Github Url.
  */
-const toGhUrl = ({ owner, repo, path, branch }) =>
-  `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`
-
+const toGhUrl = ({ owner, repo, path, branch }) => {
+  console.log('path', path)
+  return `https://api.github.com/repos` +
+  `/${owner}` +
+  `/${repo}` +
+  `/contents` +
+  `${path ? '/' + path : ''}` +
+  `?ref=${branch}`
+}
 module.exports = {
   // public
   addAuth,
