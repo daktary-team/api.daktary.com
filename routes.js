@@ -89,7 +89,7 @@ app.use(function (req, res, next) {
 app.get('/', (req, res) => {
   const routes = {
     repos_url: 'https://api.github.com/{owner}',
-    repo_url: 'https://api.github.com/{owner}/{repo}',
+    repo_url: 'https://api.github.com/{owner}/{repo}/{branch}',
     folder_url: 'https://api.github.com/{owner}/{repo}/tree/{branch}/{path}',
     file_url: 'https://api.github.com/{owner}/{repo}/blob/{branch}/{path}'
   }
@@ -102,11 +102,14 @@ app.get('/', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:
  */
 app.get('/:owner', (req, res) => {
-  const routes = {
-    git_url:
-      `https://api.github.com/users/${req.params.owner}/repos?ref=${req.params.branch}`
-  }
-  res.json(routes)
+  const gitUrl = `https://api.github.com/users/${req.params.owner}/repos`
+  request(gitUrl)
+  .then(rawJson => {
+    res.json(rawJson)
+  })
+  .catch(err => {
+    throw new Error(`Can't load: ${gitUrl} : ${err}`)
+  })
 })
 
 /**
