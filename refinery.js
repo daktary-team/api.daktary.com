@@ -4,7 +4,7 @@
 */
 
 const yaml = require('js-yaml')
-const mkd = require('markdown-it')()
+const mkd = require('markdown-it')({ html: true })
 
 /**
  * Convert a base64 in utf8.
