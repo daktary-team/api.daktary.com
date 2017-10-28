@@ -42,13 +42,38 @@ const addMetas = files =>
  * @param {Object} expressParams - req.params of express.
  * @return {Object} request - request to load.
  */
-const convertToGhParams = reqParams =>
-  ({
+const convertToGhParams = reqParams => {
+  const ghParams = {
     owner: reqParams.owner,
     repo: reqParams.repo,
-    path: `${reqParams.path}${reqParams[0]}`,
     branch: reqParams.branch
-  })
+  }
+  if (reqParams.path) {
+    ghParams.path = `${reqParams.path}${reqParams[0]}`
+  }
+  return ghParams
+}
+
+/**
+ * Get files and folders from Github.
+ *
+ * @param {Object} req - req.params of express.
+ * @param {Object} res - res.params of express.
+ */
+const getGhRessources = (req, res) => {
+  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
+  request(gitUrl)
+    .then(rawJson => {
+      const promises = addMetas(refine.mkdFilesFromTree(rawJson))
+      Promise.all(promises).then(jsonFiles => {
+        const jsonFolders = rawJson.filter(json => json.type === 'dir')
+        res.json(jsonFolders.concat(jsonFiles))
+      })
+    })
+    .catch(err => {
+      throw new Error(`Can't load: ${gitUrl} : ${err}`)
+    })
+}
 
 /**
  * Add headers for API requests
@@ -64,7 +89,7 @@ app.use(function (req, res, next) {
 app.get('/', (req, res) => {
   const routes = {
     repos_url: 'https://api.github.com/{owner}',
-    repo_url: 'https://api.github.com/{owner}/{repo}',
+    repo_url: 'https://api.github.com/{owner}/{repo}/{branch}',
     folder_url: 'https://api.github.com/{owner}/{repo}/tree/{branch}/{path}',
     file_url: 'https://api.github.com/{owner}/{repo}/blob/{branch}/{path}'
   }
@@ -77,11 +102,14 @@ app.get('/', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:
  */
 app.get('/:owner', (req, res) => {
-  const routes = {
-    git_url:
-      `https://api.github.com/users/${req.params.owner}/repos?ref=${req.params.branch}`
-  }
-  res.json(routes)
+  const gitUrl = `https://api.github.com/users/${req.params.owner}/repos`
+  request(gitUrl)
+  .then(rawJson => {
+    res.json(rawJson)
+  })
+  .catch(err => {
+    throw new Error(`Can't load: ${gitUrl} : ${err}`)
+  })
 })
 
 /**
@@ -89,12 +117,8 @@ app.get('/:owner', (req, res) => {
  * Convert: https://api.daktary.com/:owner:/:repo:
  * to github api: https://api.github.com/repos/:owner:/:repo:
  */
-app.get('/:owner/:repo', (req, res) => {
-  const routes = {
-    git_url:
-      `https://api.github.com/repos/${req.params.owner}/${req.params.repo}?ref=${req.params.branch}`
-  }
-  res.json(routes)
+app.get('/:owner/:repo/:branch', (req, res) => {
+  getGhRessources(req, res)
 })
 
 /**
@@ -103,18 +127,7 @@ app.get('/:owner/:repo', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
-  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
-  request(gitUrl)
-    .then(rawJson => {
-      const promises = addMetas(refine.mkdFilesFromTree(rawJson))
-      Promise.all(promises).then(jsonFiles => {
-        const jsonFolders = rawJson.filter(json => json.type === 'dir')
-        res.json(jsonFolders.concat(jsonFiles))
-      })
-    })
-    .catch(err => {
-      throw new Error(`Can't load: ${gitUrl} : ${err}`)
-    })
+  getGhRessources(req, res)
 })
 
 /**
