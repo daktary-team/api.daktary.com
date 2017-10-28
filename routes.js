@@ -136,9 +136,10 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
-  if (!refine.isMkdExt(`${req.params[0]}`)) {
+  const fileName = req.params[0] || req.params.path
+  if (!refine.isMkdExt(fileName)) {
     throw new Error(
-      `${req.params[0]}: not a valid markdown file extension`)
+      `${fileName}: not a valid markdown file extension`)
   }
   const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(gitUrl)
