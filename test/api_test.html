@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang=fr>
+  <meta charset=UTF-8>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    article {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: .5em;
+    }
+    h1, 
+    pre, 
+    article {
+      -webkit-box-shadow: 0px 0px 3px 0px;
+      color: #555;
+    }
+    h1 {
+      padding: 1em;
+    }
+    h2,
+    h3 {
+      padding: 0;
+      margin: 0;
+    }
+    h2 {
+      color: #333;
+    }
+    h3 {
+      width: 80%;
+      text-align: right;
+      font-size: 1em;
+      font-style: italic;
+      padding: .2em;
+      font-weight: normal;
+      color: #aaa;
+    }
+    button {
+      width: 2em;
+      height: 2em;
+      display: none;
+    }
+    pre {
+      flex-direction: column;
+      display: none;
+      padding: .5em;
+      background: #eee;
+      width: 100%;
+    }
+  </style>
+  <section>
+    <h1>Test de l'API Daktary</h1>
+    <article>
+      <button class=show></button>
+      <h2>Racine</h2>
+      <h3><a href=http://localhost:5000>http://localhost:5000</a></h3>
+      <pre>
+      </pre>
+    </article>  
+  </section>
+  <script>
+    document.querySelector('button').onclick =
+      evt => document.querySelector('pre').style.display = 'block'
+
+    const request = () =>
+      new Promise(resolve =>
+        fetch('http://localhost:5000')
+          .then(response => {
+            if (response.status === 200) {
+              document.querySelector('article').style.background = '#E4F1E4'
+              document.querySelector('button').style.display = 'block'
+            } else {
+              document.querySelector('article').style.background = '#FF4B4B'
+            }
+            return response.json()
+          })
+          .then(json => resolve(json))
+        )
+
+    request('http://localhost:5000')
+      .then(json => {
+        document.querySelector('article pre').innerHTML = JSON.stringify(json, null, 2)
+      })
+  </script>
+</html>
