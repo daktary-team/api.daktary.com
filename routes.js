@@ -61,17 +61,23 @@ const convertToGhParams = reqParams => {
  * @param {Object} res - res.params of express.
  */
 const getGhRessources = (req, res) => {
-  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
-  request(gitUrl)
+  const ghParams = convertToGhParams(req.params)
+  const ghUrl = ghApiUrl.toGhUrl(ghParams)
+  request(ghUrl)
     .then(rawJson => {
       const promises = addMetas(refine.mkdFilesFromTree(rawJson))
       Promise.all(promises).then(jsonFiles => {
         const jsonFolders = rawJson.filter(json => json.type === 'dir')
-        res.json(jsonFolders.concat(jsonFiles))
+        res.json({
+          name: [ghParams.owner, ghParams.repo, ghParams.branch, ghParams.path || ''].join('/'),
+          url: ghUrl,
+          type: 'tree',
+          body: jsonFolders.concat(jsonFiles)
+        })
       })
     })
     .catch(err => {
-      throw new Error(`Can't load: ${gitUrl} : ${err}`)
+      throw new Error(`Can't load: ${ghUrl} : ${err}`)
     })
 }
 
@@ -102,13 +108,18 @@ app.get('/', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:
  */
 app.get('/:owner', (req, res) => {
-  const gitUrl = `https://api.github.com/users/${req.params.owner}/repos`
-  request(gitUrl)
+  const ghUrl = `https://api.github.com/users/${req.params.owner}/repos`
+  request(ghUrl)
   .then(rawJson => {
-    res.json(rawJson)
+    res.json({
+      name: req.params.owner,
+      url: ghUrl,
+      type: 'repos',
+      body: rawJson
+    })
   })
   .catch(err => {
-    throw new Error(`Can't load: ${gitUrl} : ${err}`)
+    throw new Error(`Can't load: ${ghUrl} : ${err}`)
   })
 })
 
@@ -141,13 +152,13 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     throw new Error(
       `${fileName}: not a valid markdown file extension`)
   }
-  const gitUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
-  request(gitUrl)
+  const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
+  request(ghUrl)
     .then(ghBlob => {
       res.json(refine.ghMkd(ghBlob))
     })
     .catch(err => {
-      throw new Error(`Can't load: ${gitUrl} : ${err}`)
+      throw new Error(`Can't load: ${ghUrl} : ${err}`)
     })
 })
 
