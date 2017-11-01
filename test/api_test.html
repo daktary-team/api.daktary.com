@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang=fr>
+  <title>API Daktary checker</title>
+  <meta charset=UTF-8>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    select {
+      margin: 1em;
+      font-size: 1em;
+    }
+    article {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: .5em;
+    }
+    h1, 
+    pre, 
+    article {
+      -webkit-box-shadow: 0px 0px 3px 0px;
+      color: #555;
+    }
+    h1 {
+      padding: 1em;
+    }
+    h2,
+    h3 {
+      padding: 0;
+      margin: 0;
+    }
+    h2 {
+      width: 25%;
+      text-align: left;
+      color: #333;
+      font-size: 1em;
+    }
+    h3 {
+      width: 70%;
+      text-align: right;
+      font-size: .8em;
+      font-style: italic;
+      padding: .2em;
+      font-weight: normal;
+      color: #aaa;
+    }
+    button {
+      cursor: pointer;
+
+    }
+    pre {
+      flex-direction: column;
+      display: none;
+      padding: .5em;
+      background: #eee;
+      width: 100%; 
+    }
+  </style>
+
+  <h1>API Daktary checker</h1>
+  <select>
+      <option value="localhost:5000">localhost:5000</option>
+      <option value="api.daktary.com">api.daktary.com</option>
+  </select>
+  <button id=go>Go</button>
+  <section></section>
+
+  <template>
+    <article>
+      <button></button>
+      <h2></h2>
+      <h3><a href=>/</a></h3>
+      <pre>
+      </pre>
+    </article>  
+  </template>
+
+  <script>
+    const tpl = {}
+
+    tpl.build = (trial) => {
+      const select = document.querySelector('select')
+      const location = select[select.selectedIndex].value
+      const tpl = document.querySelector('template').content
+      const tplQuery = query => tpl.querySelector(query)
+      tplQuery('article').id = trial.id
+      tplQuery('h2').innerText = trial.name
+      tplQuery('h3 a').href = `${location}${trial.url}`
+      tplQuery('h3 a').innerText = `${location}${trial.url}`
+      tplQuery('article pre').innerHTML = trial.json
+      return tpl
+    }
+
+    tpl.display = (trial, container) => {
+      const template = tpl.build(trial)
+      const clone = document.importNode(template, true)
+      container.appendChild(clone)
+      document.querySelector(`article#${trial.id} button`).onclick =
+          evt => {
+            const pre = evt.target.parentNode.querySelector('pre')
+            pre.style.display = ! pre.style.display ? 'block' : ''
+          }
+
+      request(`http://localhost:5000${trial.url}`, trial.id)
+        .then((json) => {
+          document.querySelector(`article#${trial.id} pre`).innerHTML = JSON.stringify(json, null, 2)
+        })
+    }
+
+    const request = (apiUrl, id) =>
+      new Promise(resolve =>
+        fetch(apiUrl)
+          .then(response => {
+            if (response.status === 200) {
+              document.querySelector(`article#${id}`).style.background = '#E4F1E4'
+              document.querySelector(`article#${id} button`).style.display = 'block'
+            } else {
+              document.querySelector(`article#${id}`).style.background = '#FF4B4B'
+            }
+            return response.json()
+          })
+          .then(json => resolve(json))
+        )
+
+      const trials = [
+        { id: 'trial-1', name: 'Racine', url: '/' },
+        { id: 'trial-2', name: 'User', url: '/daktary-team' },
+        { id: 'trial-3', name: 'User-404', url: '/daktary-team-ghost' },
+        { id: 'trial-4', name: 'Repo', url: '/daktary-team/api.daktary.com/master' },
+        { id: 'trial-5', name: 'Repo-404', url: '/daktary-team/ghost/master' },
+        { id: 'trial-6', name: 'Folder', url: '/daktary-team/documentation/tree/master/contributions' },
+        { id: 'trial-7', name: 'Folder-404', url: '/daktary-team/documentation/tree/master/ghost' },
+        { id: 'trial-8', name: 'Contribution', url: '/daktary-team/documentation/blob/master/contributions/creer_un_depot_github.md' },
+        { id: 'trial-9', name: 'Contribution-bad-extension', url: '/daktary-team/api.daktary.com/blob/master/package-lock.json' },
+        { id: 'trial-10', name: 'Contribution-404', url: '/daktary-team/documentation/blob/master/contributions/ghost.mz' },
+        { id: 'trial-11', name: 'Bad Url', url: '/daktary-team/documentation/bloob/master/contributions/ghost.mz' },
+      ]
+
+      document.querySelector('button#go').onclick = evt => {
+        const section = document.querySelector('section')
+        section.innerHTML = ''
+        trials.map(trial => tpl.display(trial, section))
+      }
+  </script>
+</html>

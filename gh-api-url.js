@@ -34,7 +34,6 @@ const addAuth = (url, { ghId, ghSecret } = authRateLimit) => {
  * @return {String} github-url - The API Github Url.
  */
 const toGhUrl = ({ owner, repo, path, branch }) => {
-  console.log('path', path)
   return `https://api.github.com/repos` +
   `/${owner}` +
   `/${repo}` +

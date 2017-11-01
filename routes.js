@@ -40,18 +40,32 @@ const addMetas = files =>
  * Convert express url params to github params.
  *
  * @param {Object} expressParams - req.params of express.
- * @return {Object} request - request to load.
+ * @return {Object} params - Github's params.
  */
 const convertToGhParams = reqParams => {
   const ghParams = {
     owner: reqParams.owner,
     repo: reqParams.repo,
-    branch: reqParams.branch
-  }
-  if (reqParams.path) {
-    ghParams.path = `${reqParams.path}${reqParams[0]}`
+    branch: reqParams.branch,
+    path: `${reqParams.path || ''}${reqParams[0] || ''}`
   }
   return ghParams
+}
+
+/**
+ * Convert express url params to github path.
+ *
+ * @param {Object} expressParams - req.params of express.
+ * @return {Object} params - Github's path.
+ */
+const convertToGhPath = reqParams => {
+  const ghParams = convertToGhParams(reqParams)
+  const path =
+    `${ghParams.owner ? ghParams.owner + '/' : ''}` +
+    `${ghParams.repo ? ghParams.repo + '/' : ''}` +
+    `${ghParams.branch ? ghParams.branch + '/' : ''}` +
+    `${ghParams.path || ''}`
+  return path.replace(/\/$/, '')
 }
 
 /**
@@ -61,15 +75,14 @@ const convertToGhParams = reqParams => {
  * @param {Object} res - res.params of express.
  */
 const getGhRessources = (req, res) => {
-  const ghParams = convertToGhParams(req.params)
-  const ghUrl = ghApiUrl.toGhUrl(ghParams)
+  const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(ghUrl)
     .then(rawJson => {
       const promises = addMetas(refine.mkdFilesFromTree(rawJson))
       Promise.all(promises).then(jsonFiles => {
         const jsonFolders = rawJson.filter(json => json.type === 'dir')
         res.json({
-          name: [ghParams.owner, ghParams.repo, ghParams.branch, ghParams.path || ''].join('/'),
+          name: convertToGhPath(req.params),
           url: ghUrl,
           type: 'tree',
           body: jsonFolders.concat(jsonFiles)
@@ -77,7 +90,13 @@ const getGhRessources = (req, res) => {
       })
     })
     .catch(err => {
-      throw new Error(`Can't load: ${ghUrl} : ${err}`)
+      res.json({
+        path: convertToGhPath(req.params),
+        url: ghUrl,
+        type: '404',
+        err: err,
+        body: 'Uknown tree'
+      })
     })
 }
 
@@ -110,16 +129,22 @@ app.get('/', (req, res) => {
 app.get('/:owner', (req, res) => {
   const ghUrl = `https://api.github.com/users/${req.params.owner}/repos`
   request(ghUrl)
-  .then(rawJson => {
-    res.json({
-      name: req.params.owner,
-      url: ghUrl,
-      type: 'repos',
-      body: rawJson
+    .then(rawJson => {
+      res.json({
+        name: convertToGhPath(req.params),
+        url: ghUrl,
+        type: 'repos',
+        body: rawJson
+      })
     })
-  })
   .catch(err => {
-    throw new Error(`Can't load: ${ghUrl} : ${err}`)
+    res.json({
+      path: convertToGhPath(req.params),
+      url: ghUrl,
+      type: '404',
+      err: err,
+      body: 'Uknown user'
+    })
   })
 })
 
@@ -147,19 +172,38 @@ app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path:
  */
 app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
+  const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   const fileName = req.params[0] || req.params.path
   if (!refine.isMkdExt(fileName)) {
-    throw new Error(
-      `${fileName}: not a valid markdown file extension`)
+    res.json({
+      path: convertToGhPath(req.params),
+      url: ghUrl,
+      type: '404',
+      body: 'Unknown extension'
+    })
   }
-  const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(ghUrl)
     .then(ghBlob => {
       res.json(refine.ghMkd(ghBlob))
     })
     .catch(err => {
-      throw new Error(`Can't load: ${ghUrl} : ${err}`)
+      res.json({
+        path: convertToGhPath(req.params),
+        url: ghUrl,
+        type: '404',
+        err: err,
+        body: 'Uknown file'
+      })
     })
 })
+
+app.get('*', (req, res) =>
+  res.json({
+    path: convertToGhPath(req.params),
+    url: '',
+    type: '404',
+    body: 'Uknown route'
+  })
+)
 
 app.listen(process.env.PORT)

@@ -52,6 +52,12 @@ It runs with nodemon and foreman whose watch the modification to restart on chan
 npm test
 ```
 
+## Play Functional Tests
+
+In test folder, you can get the autonomous page : *api_test_html*
+
+You can open it in your favorite browser. It try to play with the local or distant API.
+
 ## Linter
 
 ```bash
