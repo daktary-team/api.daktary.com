@@ -46,10 +46,8 @@ const convertToGhParams = reqParams => {
   const ghParams = {
     owner: reqParams.owner,
     repo: reqParams.repo,
-    branch: reqParams.branch
-  }
-  if (reqParams.path) {
-    ghParams.path = `${reqParams.path}${reqParams[0]}`
+    branch: reqParams.branch,
+    path: `${reqParams.path || ''}${reqParams[0] || ''}`
   }
   return ghParams
 }
@@ -96,6 +94,7 @@ const getGhRessources = (req, res) => {
         path: convertToGhPath(req.params),
         url: ghUrl,
         type: '404',
+        err: err,
         body: 'Uknown tree'
       })
     })
@@ -143,6 +142,7 @@ app.get('/:owner', (req, res) => {
       path: convertToGhPath(req.params),
       url: ghUrl,
       type: '404',
+      err: err,
       body: 'Uknown user'
     })
   })
@@ -191,6 +191,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
         path: convertToGhPath(req.params),
         url: ghUrl,
         type: '404',
+        err: err,
         body: 'Uknown file'
       })
     })
