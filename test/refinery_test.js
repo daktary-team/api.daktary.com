@@ -59,38 +59,6 @@ describe('Refinery -', () => {
     })
   })
 
-  describe('Extract files from github tree', () => {
-    it('Verify fields', () => {
-      const tree = [{
-        name: 'README.md',
-        path: 'README.md',
-        sha: 'b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-        size: 2285,
-        url: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
-        html_url: 'https://github.com/multibao/organisations/blob/master/README.md',
-        git_url: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-        download_url: 'https://raw.githubusercontent.com/multibao/organisations/master/README.md',
-        type: 'file',
-        _links: {
-          self: 'https://api.github.com/repos/multibao/organisations/contents/README.md?ref=master',
-          git: 'https://api.github.com/repos/multibao/organisations/git/blobs/b9c88f5d1991cea6c613cdce83487d6ed3ca2ab9',
-          html: 'https://github.com/multibao/organisations/blob/master/README.md'
-        }
-      }]
-      expect(refine.mkdFilesFromTree(tree)[0]).to.haveOwnProperty('name')
-      expect(refine.mkdFilesFromTree(tree)[0].type).to.be.equal('file')
-    })
-    it('Only Markdown and folder', () => {
-      const tree = [
-        { name: 'README.md', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.md?ref=master' },
-        { name: 'README.adoc', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.adoc?ref=master' },
-        { name: 'vendor', type: 'dir', url: 'https://api.github.com/repos/foo/bar/contents/vendor?ref=master' },
-        { name: 'README.txt', type: 'file', url: 'https://api.github.com/repos/foo/bar/contents/README.txt?ref=master' }
-      ]
-      expect(refine.mkdFilesFromTree(tree)).to.be.length(2)
-    })
-  })
-
   describe('Refining a markdown Github document', () => {
     const mkdDoc = {
       name: 'README.md',
@@ -98,6 +66,7 @@ describe('Refinery -', () => {
       sha: 'a3744f810321d6d56ee217b00cff16794d3f36b7',
       size: 775,
       url: 'https://api.github.com/repos/cpcoop/animer_ateliers/contents/README.md?ref=master',
+      html_url: 'https://github.com/multibao/contributions/blob/master/contributions/d_sidd/ici_c_local.md',
       type: 'file',
       content: 'LS0tCnRpdGxlOiBCb3VsZSB2aWVudCBpY2kgbW9uIGNoaWVuCmdyb3VwZTogcHRvc2UKLS0tCiMgVCdlcyBqb2xpIGNvbW1lIHBhaW4gZCdlcGljZQ=='
 

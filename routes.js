@@ -78,7 +78,7 @@ const getGhRessources = (req, res) => {
   const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(ghUrl)
     .then(rawJson => {
-      const promises = addMetas(refine.mkdFilesFromTree(rawJson))
+      const promises = addMetas(rawJson)
       Promise.all(promises).then(jsonFiles => {
         const jsonFolders = rawJson.filter(json => json.type === 'dir')
         res.json({

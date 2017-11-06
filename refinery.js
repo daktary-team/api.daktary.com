@@ -72,18 +72,9 @@ const ghMkd = ghMkdFile =>
     url: ghMkdFile.url,
     type: ghMkdFile.type,
     meta: metasFromMkdBase64(ghMkdFile.content),
-    body: contentFromMkdBase64(ghMkdFile.content)
+    body: contentFromMkdBase64(ghMkdFile.content),
+    path: ghMkdFile.html_url.replace('https://github.com/', '')
   })
-
-/**
- * Transform raw Github json tree to a collection of markdown files.
- *
- * @param {Object} githubTree - Github json tree.
- * @return {Object} jsonFiles - markdown collection files of Github tree.
- */
-const mkdFilesFromTree = githubTree =>
-  githubTree.filter(({ name, type }) => isMkdExt(name) || (type !== 'file'))
-  .map(({ name, type, url }) => ({ name: name, type: type, url: url }))
 
 module.exports = {
   base64ToUtf8,
@@ -92,6 +83,5 @@ module.exports = {
   metasFromMkdBase64,
   // public
   isMkdExt,
-  ghMkd,
-  mkdFilesFromTree
+  ghMkd
 }
