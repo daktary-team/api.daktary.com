@@ -69,7 +69,6 @@ describe('Refinery -', () => {
       html_url: 'https://github.com/multibao/contributions/blob/master/contributions/d_sidd/ici_c_local.md',
       type: 'file',
       content: 'LS0tCnRpdGxlOiBCb3VsZSB2aWVudCBpY2kgbW9uIGNoaWVuCmdyb3VwZTogcHRvc2UKLS0tCiMgVCdlcyBqb2xpIGNvbW1lIHBhaW4gZCdlcGljZQ=='
-
     }
     it('it contains : url, name and type', () => {
       expect(refine.ghMkd(mkdDoc).name).to.be.equal('README.md')
@@ -82,6 +81,23 @@ describe('Refinery -', () => {
     })
     it('it contains : body decrypted', () => {
       expect(refine.ghMkd(mkdDoc).body).to.be.equal('<h1>T\'es joli comme pain d\'epice</h1>\n')
+    })
+  })
+  describe('Refining a markdown Github document', () => {
+    const folder = {
+      name: 'assets',
+      path: 'assets',
+      url: 'https://api.github.com/repos/multibao/contributions/contents/assets?ref=master',
+      html_url: 'https://github.com/multibao/contributions/tree/master/assets',
+      type: 'dir'
+    }
+    it('it contains : url, name and type', () => {
+      expect(refine.ghFolder(folder).name).to.be.equal('assets')
+      expect(refine.ghFolder(folder).url).to.be.equal('https://api.github.com/repos/multibao/contributions/contents/assets?ref=master')
+      expect(refine.ghFolder(folder).type).to.be.equal('dir')
+    })
+    it('it replaces: path with github path', () => {
+      expect(refine.ghFolder(folder).path).to.be.equal('multibao/contributions/tree/master/assets')
     })
   })
 })

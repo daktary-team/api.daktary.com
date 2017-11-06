@@ -80,7 +80,10 @@ const getGhRessources = (req, res) => {
     .then(rawJson => {
       const promises = addMetas(rawJson)
       Promise.all(promises).then(jsonFiles => {
-        const jsonFolders = rawJson.filter(json => json.type === 'dir')
+        const jsonFolders =
+          rawJson
+            .filter(json => json.type === 'dir')
+            .map(folder => refine.ghFolder(folder))
         res.json({
           name: convertToGhPath(req.params),
           url: ghUrl,

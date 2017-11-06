@@ -76,6 +76,20 @@ const ghMkd = ghMkdFile =>
     path: ghMkdFile.html_url.replace('https://github.com/', '')
   })
 
+/**
+ * Refine raw Github json folder.
+ *
+ * @param {Object} ghMkdFolder - Github json folder.
+ * @return {Object} jsonFolder - folder refined.
+ */
+const ghFolder = ghFolder =>
+({
+  name: ghFolder.name,
+  url: ghFolder.url,
+  type: ghFolder.type,
+  path: ghFolder.html_url.replace('https://github.com/', '')
+})
+
 module.exports = {
   base64ToUtf8,
   removeMetas,
@@ -83,5 +97,6 @@ module.exports = {
   metasFromMkdBase64,
   // public
   isMkdExt,
-  ghMkd
+  ghMkd,
+  ghFolder
 }
