@@ -97,7 +97,7 @@ describe('Refinery -', () => {
       expect(refine.ghFolder(folder).type).to.be.equal('dir')
     })
     it('it replaces: path with github path', () => {
-      expect(refine.ghFolder(folder).path).to.be.equal('multibao/contributions/tree/master/assets')
+      expect(refine.ghFolder(folder).full_name).to.be.equal('multibao/contributions/tree/master/assets')
     })
   })
 })

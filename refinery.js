@@ -73,7 +73,7 @@ const ghMkd = ghMkdFile =>
     type: ghMkdFile.type,
     meta: metasFromMkdBase64(ghMkdFile.content),
     body: contentFromMkdBase64(ghMkdFile.content),
-    path: ghMkdFile.html_url.replace('https://github.com/', '')
+    full_name: ghMkdFile.html_url.replace('https://github.com/', '')
   })
 
 /**
@@ -87,7 +87,7 @@ const ghFolder = ghFolder =>
   name: ghFolder.name,
   url: ghFolder.url,
   type: ghFolder.type,
-  path: ghFolder.html_url.replace('https://github.com/', '')
+  full_name: ghFolder.html_url.replace('https://github.com/', '')
 })
 
 module.exports = {

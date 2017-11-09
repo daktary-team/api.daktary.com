@@ -28,11 +28,8 @@ const request = url => {
  * @param {Array} files - Files collection.
  * @return {Array} files - Files collection with metas.
  */
-const addMetas = files =>
-  files.filter(({ name, type }) =>
-    refine.isMkdExt(name) && type === 'file'
-  )
-  .map(({ url }) =>
+const addFilesMetas = files =>
+  files.map(({ url }) =>
     request(url).then(ghBlob => refine.ghMkd(ghBlob))
   )
 
@@ -74,27 +71,25 @@ const convertToGhPath = reqParams => {
  * @param {Object} req - req.params of express.
  * @param {Object} res - res.params of express.
  */
-const getGhRessources = (req, res) => {
+const getTree = (req, res) => {
   const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
   request(ghUrl)
     .then(rawJson => {
-      const promises = addMetas(rawJson)
-      Promise.all(promises).then(jsonFiles => {
-        const jsonFolders =
-          rawJson
-            .filter(json => json.type === 'dir')
-            .map(folder => refine.ghFolder(folder))
+      const folders = rawJson.filter(json => json.type === 'dir').map(folder => refine.ghFolder(folder))
+      const files = rawJson.filter(({ name, type }) => refine.isMkdExt(name) && type === 'file')
+      const promises = addFilesMetas(files)
+      Promise.all(promises).then(filesWithMetas => {
         res.json({
-          name: convertToGhPath(req.params),
+          full_name: convertToGhPath(req.params),
           url: ghUrl,
           type: 'tree',
-          body: jsonFolders.concat(jsonFiles)
+          body: folders.concat(filesWithMetas)
         })
       })
     })
     .catch(err => {
       res.json({
-        path: convertToGhPath(req.params),
+        full_name: convertToGhPath(req.params),
         url: ghUrl,
         type: '404',
         err: err,
@@ -133,16 +128,20 @@ app.get('/:owner', (req, res) => {
   const ghUrl = `https://api.github.com/users/${req.params.owner}/repos`
   request(ghUrl)
     .then(rawJson => {
+      const repos = rawJson.map(repo => {
+        repo.type = 'repo'
+        return repo
+      })
       res.json({
-        name: convertToGhPath(req.params),
+        full_name: convertToGhPath(req.params),
         url: ghUrl,
-        type: 'repos',
-        body: rawJson
+        type: 'tree',
+        body: repos
       })
     })
   .catch(err => {
     res.json({
-      path: convertToGhPath(req.params),
+      full_name: convertToGhPath(req.params),
       url: ghUrl,
       type: '404',
       err: err,
@@ -157,7 +156,7 @@ app.get('/:owner', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:
  */
 app.get('/:owner/:repo/:branch', (req, res) => {
-  getGhRessources(req, res)
+  getTree(req, res)
 })
 
 /**
@@ -166,7 +165,7 @@ app.get('/:owner/:repo/:branch', (req, res) => {
  * to github api: https://api.github.com/repos/:owner:/:repo:/contents/:path
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
-  getGhRessources(req, res)
+  getTree(req, res)
 })
 
 /**
@@ -179,7 +178,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   const fileName = req.params[0] || req.params.path
   if (!refine.isMkdExt(fileName)) {
     res.json({
-      path: convertToGhPath(req.params),
+      full_name: convertToGhPath(req.params),
       url: ghUrl,
       type: '404',
       body: 'Unknown extension'
@@ -191,7 +190,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
     })
     .catch(err => {
       res.json({
-        path: convertToGhPath(req.params),
+        full_name: convertToGhPath(req.params),
         url: ghUrl,
         type: '404',
         err: err,
@@ -202,7 +201,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 
 app.get('*', (req, res) =>
   res.json({
-    path: convertToGhPath(req.params),
+    full_name: convertToGhPath(req.params),
     url: '',
     type: '404',
     body: 'Uknown route'
