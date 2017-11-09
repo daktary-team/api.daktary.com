@@ -130,6 +130,7 @@ app.get('/:owner', (req, res) => {
     .then(rawJson => {
       const repos = rawJson.map(repo => {
         repo.type = 'repo'
+        repo.full_name += '/master'
         return repo
       })
       res.json({
