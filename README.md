@@ -48,6 +48,8 @@ It runs with nodemon and foreman whose watch the modification to restart on chan
 
 ## Play Unit Tests
 
+We use [http://mochajs.org](mocha) and [http://chaijs.com](chaijs) for managing our unit-tests.
+
 ```bash
 npm test
 ```
@@ -60,17 +62,11 @@ You can open it in your favorite browser. It try to play with the local or dista
 
 ## Linter
 
+We use [https://standardjs.com](standard Js) as linter.
+
 ```bash
 npm run lint
 ```
-
-## Spikes
-- [cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
-- supertest
-- Restify vs express
-- uglify
-- README : https://codeburst.io/good-code-vs-bad-code-35624b4e91bc
-- dist-src folders
 
 ## API Usage
 
@@ -80,14 +76,30 @@ In your console, you can try :
 
 #### For a file
 ```JavaScript
-fetch('http://localhost:5000/daktary-team/api.daktary.com/blob/master/README.md')
+fetch('http://api.daktary.com/daktary-team/api.daktary.com/blob/master/README.md')
     .then(rep => rep.json())
     .then(json => console.log(json))
 ```
 
 #### For a folder
 ```JavaScript
-fetch('http://localhost:5000/daktary-team/api.daktary.com/tree/master/test')
+fetch('http://api.daktary.com/daktary-team/api.daktary.com/tree/master/test')
     .then(rep => rep.json())
     .then(json => console.log(json))
 ```
+
+See the home to see all possibilities : http://api.daktary.com
+
+# Licence
+MIT
+
+
+---
+
+## Spikes
+- [cf. Generator](https://github.com/DrkSephy/es6-cheatsheet)
+- supertest
+- Restify vs express
+- uglify
+- README : https://codeburst.io/good-code-vs-bad-code-35624b4e91bc
+- dist-src folders
