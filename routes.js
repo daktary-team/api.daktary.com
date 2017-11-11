@@ -71,32 +71,33 @@ const convertToGhPath = reqParams => {
  * @param {Object} req - req.params of express.
  * @param {Object} res - res.params of express.
  */
-const getTree = (req, res) => {
-  const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
-  request(ghUrl)
-    .then(rawJson => {
+const getTree = (req, res) =>
+  new Promise((resolve, reject) => {
+    const ghUrl = ghApiUrl.toGhUrl(convertToGhParams(req.params))
+    request(ghUrl).then(rawJson => {
       const folders = rawJson.filter(json => json.type === 'dir').map(folder => refine.ghFolder(folder))
       const files = rawJson.filter(({ name, type }) => refine.isMkdExt(name) && type === 'file')
       const promises = addFilesMetas(files)
-      Promise.all(promises).then(filesWithMetas => {
-        res.json({
-          full_name: convertToGhPath(req.params),
-          url: ghUrl,
-          type: 'tree',
-          body: folders.concat(filesWithMetas)
-        })
-      })
+      Promise.all(promises)
+        .then(filesWithMetas => (
+          resolve({
+            full_name: convertToGhPath(req.params),
+            url: ghUrl,
+            type: 'tree',
+            body: folders.concat(filesWithMetas)
+          })
+        ))
     })
-    .catch(err => {
-      res.json({
+    .catch(err => (
+      resolve({
         full_name: convertToGhPath(req.params),
         url: ghUrl,
         type: '404',
         err: err,
         body: 'Uknown tree'
       })
-    })
-}
+    ))
+  })
 
 /**
  * Add headers for API requests
@@ -135,6 +136,7 @@ app.get('/:owner', (req, res) => {
       })
       res.json({
         full_name: convertToGhPath(req.params),
+        breadcrumb: [],
         url: ghUrl,
         type: 'tree',
         body: repos
@@ -143,6 +145,7 @@ app.get('/:owner', (req, res) => {
   .catch(err => {
     res.json({
       full_name: convertToGhPath(req.params),
+      breadcrumb: [],
       url: ghUrl,
       type: '404',
       err: err,
@@ -158,6 +161,11 @@ app.get('/:owner', (req, res) => {
  */
 app.get('/:owner/:repo/:branch', (req, res) => {
   getTree(req, res)
+    .then(tree => {
+      tree.breadcrumb = refine.breadcrumbOwner(req.params)
+      res.json(tree)
+    })
+    .catch(err => res.json(err))
 })
 
 /**
@@ -167,6 +175,11 @@ app.get('/:owner/:repo/:branch', (req, res) => {
  */
 app.get('/:owner/:repo/tree/:branch/:path*', (req, res) => {
   getTree(req, res)
+    .then(tree => {
+      tree.breadcrumb = refine.breadcrumbRepo(req.params)
+      res.json(tree)
+    })
+    .catch(err => res.json(err))
 })
 
 /**
@@ -180,6 +193,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   if (!refine.isMkdExt(fileName)) {
     res.json({
       full_name: convertToGhPath(req.params),
+      breadcrumb: [],
       url: ghUrl,
       type: '404',
       body: 'Unknown extension'
@@ -187,11 +201,14 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   }
   request(ghUrl)
     .then(ghBlob => {
-      res.json(refine.ghMkd(ghBlob))
+      const blob = refine.ghMkd(ghBlob)
+      blob.breadcrumb = refine.breadcrumbOwner(req.params)
+      res.json(blob)
     })
     .catch(err => {
       res.json({
         full_name: convertToGhPath(req.params),
+        breadcrumb: [],
         url: ghUrl,
         type: '404',
         err: err,
@@ -203,6 +220,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
 app.get('*', (req, res) =>
   res.json({
     full_name: convertToGhPath(req.params),
+    breadcrumb: [],
     url: '',
     type: '404',
     body: 'Uknown route'
