@@ -117,8 +117,8 @@ const breadcrumbRepo = path =>
  * @return {boolean} - is valid or not.
  */
 const breadcrumbTree = path =>
-  breadcrumbOwner(path).concat([
-    { link: `${path.owner}/${path.repo}/tree/${path.branch}/${path.path}`, title: path.path }
+  breadcrumbRepo(path).concat([
+    { link: `${path.owner}/${path.repo}/tree/${path.branch}${path[0] ? '/' + path.path : ''}`, title: path.path }
   ])
 
 module.exports = {

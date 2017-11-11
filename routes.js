@@ -202,7 +202,7 @@ app.get('/:owner/:repo/blob/:branch/:path*', (req, res) => {
   request(ghUrl)
     .then(ghBlob => {
       const blob = refine.ghMkd(ghBlob)
-      blob.breadcrumb = refine.breadcrumbOwner(req.params)
+      blob.breadcrumb = refine.breadcrumbTree(req.params)
       res.json(blob)
     })
     .catch(err => {
