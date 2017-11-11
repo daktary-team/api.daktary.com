@@ -90,6 +90,37 @@ const ghFolder = ghFolder =>
   full_name: ghFolder.html_url.replace('https://github.com/', '')
 })
 
+/**
+ * Breadcrumb data for user.
+ *
+ * @param {String} filepath - path and filename.
+ * @return {boolean} - is valid or not.
+ */
+const breadcrumbOwner = path =>
+  ([{ link: path.owner, title: path.owner }])
+
+/**
+ * Breadcrumb data for repo.
+ *
+ * @param {String} filepath - path and filename.
+ * @return {boolean} - is valid or not.
+ */
+const breadcrumbRepo = path =>
+  breadcrumbOwner(path).concat([
+    { link: `${path.owner}/${path.repo}/${path.branch}`, title: path.repo }
+  ])
+
+/**
+ * Breadcrumb data for tree.
+ *
+ * @param {String} filepath - path and filename.
+ * @return {boolean} - is valid or not.
+ */
+const breadcrumbTree = path =>
+  breadcrumbOwner(path).concat([
+    { link: `${path.owner}/${path.repo}/tree/${path.branch}/${path.path}`, title: path.path }
+  ])
+
 module.exports = {
   base64ToUtf8,
   removeMetas,
@@ -98,5 +129,8 @@ module.exports = {
   // public
   isMkdExt,
   ghMkd,
-  ghFolder
+  ghFolder,
+  breadcrumbOwner,
+  breadcrumbRepo,
+  breadcrumbTree
 }

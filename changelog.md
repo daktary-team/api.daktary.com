@@ -21,4 +21,4 @@ PR > https://github.com/daktary-team/api.daktary.com/pull/21
 PR > https://github.com/daktary-team/api.daktary.com/pull/22
 
 ## US6-creer-un-breadcrumb-pour-chaque-route
-PR > https://github.com/daktary-team/api.daktary.com/pull/
+PR > https://github.com/daktary-team/api.daktary.com/pull/31

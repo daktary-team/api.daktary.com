@@ -83,6 +83,7 @@ describe('Refinery -', () => {
       expect(refine.ghMkd(mkdDoc).body).to.be.equal('<h1>T\'es joli comme pain d\'epice</h1>\n')
     })
   })
+
   describe('Refining a markdown Github document', () => {
     const folder = {
       name: 'assets',
@@ -98,6 +99,28 @@ describe('Refinery -', () => {
     })
     it('it replaces: path with github path', () => {
       expect(refine.ghFolder(folder).full_name).to.be.equal('multibao/contributions/tree/master/assets')
+    })
+  })
+
+  describe('Create breadcrumb data with github path', () => {
+    const path = {
+      owner: 'daktary-team',
+      repo: 'api.daktary.com',
+      branch: 'master',
+      path: 'test'
+    }
+    it('for repos with owner', () => {
+      expect(refine.breadcrumbOwner(path)).to.be.an('array')
+      expect(refine.breadcrumbOwner(path)[0].title).to.be.equal('daktary-team')
+      expect(refine.breadcrumbOwner(path)[0].link).to.be.equal('daktary-team')
+    })
+    it('for tree with owner/repo', () => {
+      expect(refine.breadcrumbRepo(path)[1].title).to.be.equal('api.daktary.com')
+      expect(refine.breadcrumbRepo(path)[1].link).to.be.equal('daktary-team/api.daktary.com/master')
+    })
+    it('for tree with owner/repo/path', () => {
+      expect(refine.breadcrumbTree(path)[1].title).to.be.equal('test')
+      expect(refine.breadcrumbTree(path)[1].link).to.be.equal('daktary-team/api.daktary.com/tree/master/test')
     })
   })
 })
