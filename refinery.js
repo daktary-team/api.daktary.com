@@ -117,7 +117,7 @@ const breadcrumbRepo = path =>
  * @return {boolean} - is valid or not.
  */
 const breadcrumbTree = path =>
-  breadcrumbOwner(path).concat([
+  breadcrumbRepo(path).concat([
     { link: `${path.owner}/${path.repo}/tree/${path.branch}/${path.path}`, title: path.path }
   ])
 

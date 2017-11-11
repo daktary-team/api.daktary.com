@@ -107,7 +107,8 @@ describe('Refinery -', () => {
       owner: 'daktary-team',
       repo: 'api.daktary.com',
       branch: 'master',
-      path: 'test'
+      path: 'test',
+      '0': 'README.md'
     }
     it('for repos with owner', () => {
       expect(refine.breadcrumbOwner(path)).to.be.an('array')
@@ -119,8 +120,8 @@ describe('Refinery -', () => {
       expect(refine.breadcrumbRepo(path)[1].link).to.be.equal('daktary-team/api.daktary.com/master')
     })
     it('for tree with owner/repo/path', () => {
-      expect(refine.breadcrumbTree(path)[1].title).to.be.equal('test')
-      expect(refine.breadcrumbTree(path)[1].link).to.be.equal('daktary-team/api.daktary.com/tree/master/test')
+      expect(refine.breadcrumbTree(path)[2].title).to.be.equal('test')
+      expect(refine.breadcrumbTree(path)[2].link).to.be.equal('daktary-team/api.daktary.com/tree/master/test')
     })
   })
 })
