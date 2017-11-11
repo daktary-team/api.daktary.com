@@ -116,7 +116,7 @@ const breadcrumbRepo = path =>
  * @param {String} filepath - path and filename.
  * @return {boolean} - is valid or not.
  */
-const breadcrumbTree = path => 
+const breadcrumbTree = path =>
   breadcrumbRepo(path).concat([
     { link: `${path.owner}/${path.repo}/tree/${path.branch}/${path.path}`, title: path.path }
   ])
