@@ -112,10 +112,10 @@ app.use(function (req, res, next) {
  */
 app.get('/', (req, res) => {
   const routes = {
-    repos_url: 'https://api.github.com/{owner}',
-    repo_url: 'https://api.github.com/{owner}/{repo}/{branch}',
-    folder_url: 'https://api.github.com/{owner}/{repo}/tree/{branch}/{path}',
-    file_url: 'https://api.github.com/{owner}/{repo}/blob/{branch}/{path}'
+    repos_url: 'https://api.daktary.com/{owner}',
+    repo_url: 'https://api.daktary.com/{owner}/{repo}/{branch}',
+    folder_url: 'https://api.daktary.com/{owner}/{repo}/tree/{branch}/{path}',
+    file_url: 'https://api.daktary.com/{owner}/{repo}/blob/{branch}/{path}'
   }
   res.json(routes)
 })
