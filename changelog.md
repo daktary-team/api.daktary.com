@@ -19,3 +19,6 @@ PR > https://github.com/daktary-team/api.daktary.com/pull/21
 
 ## US5-recuperer-les-routes-owner-et-repo
 PR > https://github.com/daktary-team/api.daktary.com/pull/22
+
+## US6-creer-un-breadcrumb-pour-chaque-route
+PR > https://github.com/daktary-team/api.daktary.com/pull/31
