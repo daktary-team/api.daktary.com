@@ -101,7 +101,6 @@
             const pre = evt.target.parentNode.querySelector('pre')
             pre.style.display = ! pre.style.display ? 'block' : ''
           }
-          console.log('request', `${location}${trial.url}`)
       request(`${location}${trial.url}`, trial.id)
         .then((json) => {
           document.querySelector(`article#${trial.id} pre`).innerHTML = JSON.stringify(json, null, 2)
