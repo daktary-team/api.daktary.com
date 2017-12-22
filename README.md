@@ -62,7 +62,7 @@ You can open it in your favorite browser. It try to play with the local or dista
 
 ## Linter
 
-We use [https://standardjs.com](standard Js) as linter.
+We use [standardjs](https://standardjs.com) as linter.
 
 ```bash
 npm run lint
